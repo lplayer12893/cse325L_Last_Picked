@@ -18,6 +18,9 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 
+#define WHITESPACE 0x0;
+#define CHARACTER 0x1;
+
 char * getString();
 
 int main(int argc, char ** argv)
@@ -165,4 +168,83 @@ char * getString()
 	}
 	str[len] = 0x0;
 	return str;
+}
+
+/**
+ * This is a function that will split a string of commands into a single command and an array of arguments.
+ *
+ * @return array of strings, a[0] will be the command, a[1]...\0 are the arguments. This is ready for passing to execvp
+ */
+char ** splitCommandAndArgs(char * line)
+{
+
+	char ** ret = NULL;
+	int pos = 0;
+	if (line == NULL)
+		return NULL;
+	else
+	{
+		ret = malloc(sizeof(char *));
+		if (ret == NULL)
+		{
+			perror("Couldn't malloc");
+			return NULL;
+		}
+	}
+	char state = CHARACTER;
+	char c = 0x0;
+	unsigned int i = 0;
+	unsigned int numArgs = 0;
+	while(1)
+	{
+		c = line[i];
+		printf("Looking at %c (searching for %s)\n",c,state == CHARACTER? "character":"whitespace");
+		if ((c == ';') || (c == 0x0))
+			break;
+		if (state == CHARACTER)
+		{
+			// In the middle of whitespace, searching for next character
+			if (c == ' ')
+			{
+				// Found whitespace, just continue
+				// Do Nothing
+			}
+			else
+			{
+				// Found character.
+				// Grow array
+				numArgs++;
+				ret = realloc(ret,sizeof(char *) * numArgs);
+				if (ret == NULL)
+				{
+					perror("Couldn't realloc");
+					return NULL;
+				}
+				// Put the pointer to the first character in the array
+				ret[numArgs-1] = line + i;
+				// Switch states.
+				state = WHITESPACE;
+			}
+			i++;
+		}
+		else
+		{
+			// In the middle of characters, searching for next whitespace
+			if (c != ' ')
+			{
+				// Standard character found
+				// Do Nothing
+			}
+			else
+			{
+				// Whitespace found.
+				// Terminate the line.
+				line[i] = 0x0;
+				// Change state
+				state = CHARACTER;
+			}
+			i++;
+		}
+	}
+	return ret;
 }
