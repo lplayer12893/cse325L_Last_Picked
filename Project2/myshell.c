@@ -30,7 +30,7 @@ int main(int argc, char ** argv)
 	while (keep_running)
 	{
 		/* Display prompt and flush stdout*/
-		printf("ssalinas_cse222> ");
+		printf("TeamLastPicked > ");
 		fflush(stdout);
 
 		/* Read input from user */
