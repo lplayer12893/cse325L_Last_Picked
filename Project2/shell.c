@@ -1,12 +1,14 @@
 /*
  * filename: shell.c
- * description: This is an implementation of a simple shell in C.
- * author: Salinas, Sean
- * class: CSE 222 S14
+ * description: This is an implementation of a shell in C
+ *  capable of running in interactive or batch mode.
+ * authors: Salinas, Sean
+ *          Stuyvesant, Lucas
+ * class: CSE 325 S15
  * instructor: Zheng
- * assignment: Project #3
- * assigned: March 3rd, 2014
- * due: March 10th, 2014
+ * assignment: Project #2
+ * assigned: January 28th, 2015
+ * due: February 11th, 2015
  */
 
 
@@ -37,7 +39,7 @@ int main(int argc, char ** argv)
 		fflush(stdout);
 
 		/* Read input from user */
-		
+
 		// FIXME: Change to dynamic string
 		fgets(input, MAX_LINE, stdin);
 
@@ -52,7 +54,7 @@ int main(int argc, char ** argv)
 		}
 
 		/* Sometimes people enter nothing. We don't want to try to parse it. */
-		
+
 		// TODO: Tokenize on the semicolon
 		// Repeat this loop for every command separated by semicolon, but they should not include the wait command, IE they should run concurrently (except quit)
 		if (input[0] != 0)
