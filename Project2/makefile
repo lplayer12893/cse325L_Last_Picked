@@ -1,8 +1,8 @@
 CC=gcc
-CFLAGS=-Wall -ansi -Werror -pedantic -g
+CFLAGS=-Wall -Werror -std=c99 -g
 
-all: myshell.c infinite.c
-	${CC} ${CFLAGS} -o ssalinas_shell myshell.c
+all: shell.c infinite.c
+	${CC} ${CFLAGS} -o shell shell.c
 	${CC} ${CFLAGS} -o infinite infinite.c
 clean:
-	rm -f ssalinas_shell infinite
+	rm -f shell infinite
