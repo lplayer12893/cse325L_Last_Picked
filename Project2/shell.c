@@ -18,20 +18,23 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 
-#define MAX_LINE 80
+char * getString();
 
 int main(int argc, char ** argv)
 {
 	// TODO: Look at number of arguments, if more than one, batch mode, more than 2, error
 	// TODO: If batch file doesn't exist, error out
-	// TODO: Change this to use Dynamically Allocated String
-	char * args[MAX_LINE / 2 + 1];
+	
+	// TODO: Use a dynamic array for argument array
+	char * args[80];
 	int keep_running = 1;
 
-	char input[MAX_LINE];
+	char * input = NULL;
 	/* char * prog_to_run; */
-	int i;
+	// int i;
 	int argnum;
+	
+	// Interactive Mode
 	while (keep_running)
 	{
 		/* Display prompt and flush stdout*/
@@ -40,10 +43,10 @@ int main(int argc, char ** argv)
 
 		/* Read input from user */
 
-		// FIXME: Change to dynamic string
-		fgets(input, MAX_LINE, stdin);
+		input = getString();
 
-		/* Strip the newline character. */
+		/* Strip the newline character.
+		 This isn't needed anymore, since getString does it for us
 		for (i = 0; i < MAX_LINE; i++)
 		{
 			if (input[i] == '\n')
@@ -52,6 +55,7 @@ int main(int argc, char ** argv)
 				break;
 			}
 		}
+		*/
 
 		/* Sometimes people enter nothing. We don't want to try to parse it. */
 
@@ -59,7 +63,7 @@ int main(int argc, char ** argv)
 		// Repeat this loop for every command separated by semicolon, but they should not include the wait command, IE they should run concurrently (except quit)
 		if (input[0] != 0)
 		{
-			i = 0;
+			// int i = 0;
 			argnum = 0;
 			/* Tokenize using the space as the token */
 			while (1)
@@ -86,7 +90,7 @@ int main(int argc, char ** argv)
 			{
 				/* Not exit command. Run as normal. */
 				int pid;
-				i = 1;
+				// i = 1;
 
 				/* For debugging
 				printf("Going to run %s", args[0]);
@@ -131,6 +135,8 @@ int main(int argc, char ** argv)
 				}
 			}
 		}
+		free(input);
+		input = NULL;
 	}
 	return 0;
 }
