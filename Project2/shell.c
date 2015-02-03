@@ -132,3 +132,29 @@ int main(int argc, char ** argv)
 	}
 	return 0;
 }
+
+
+/**
+ * This is a function that gets a string of infinite length from stdin. This string should be freed after use.
+ * 
+ * @return pointer to new string.
+ */
+char * getString()
+{
+	char * str = malloc(sizeof(char));
+	unsigned int len = 0;
+	char c = 0x0;
+	if (str == NULL)
+	{
+		perror("Cannot malloc");
+		return NULL;
+	}
+	while ((c = getchar()) != '\n')
+	{
+		str[len] = c;
+		len++;
+		str = realloc(str,(len+1)*sizeof(char));
+	}
+	str[len] = 0x0;
+	return str;
+}
