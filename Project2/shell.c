@@ -18,18 +18,18 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 
-#define WHITESPACE 0x0;
-#define CHARACTER 0x1;
+#define WHITESPACE 0x0
+#define CHARACTER 0x1
 
 char * getString();
+char ** splitCommandAndArgs(char *, int *);
 
 int main(int argc, char ** argv)
 {
 	// TODO: Look at number of arguments, if more than one, batch mode, more than 2, error
 	// TODO: If batch file doesn't exist, error out
 	
-	// TODO: Use a dynamic array for argument array
-	char * args[80];
+	char ** args = NULL;
 	int keep_running = 1;
 
 	char * input = NULL;
@@ -68,7 +68,8 @@ int main(int argc, char ** argv)
 		{
 			// int i = 0;
 			argnum = 0;
-			/* Tokenize using the space as the token */
+			/* Tokenize using the space as the token
+			 * No longer needed.
 			while (1)
 			{
 				if (argnum == 0)
@@ -79,6 +80,8 @@ int main(int argc, char ** argv)
 					break;
 				argnum++;
 			}
+			*/
+			args = splitCommandAndArgs(input, &argnum);
 
 			/* Check for exit */
 			// FIXME: Change this to quit
@@ -137,6 +140,7 @@ int main(int argc, char ** argv)
 					*/
 				}
 			}
+			free(args);
 		}
 		free(input);
 		input = NULL;
@@ -175,11 +179,10 @@ char * getString()
  *
  * @return array of strings, a[0] will be the command, a[1]...\0 are the arguments. This is ready for passing to execvp
  */
-char ** splitCommandAndArgs(char * line)
+char ** splitCommandAndArgs(char * line, int * numberArgs)
 {
 
 	char ** ret = NULL;
-	int pos = 0;
 	if (line == NULL)
 		return NULL;
 	else
@@ -198,7 +201,7 @@ char ** splitCommandAndArgs(char * line)
 	while(1)
 	{
 		c = line[i];
-		printf("Looking at %c (searching for %s)\n",c,state == CHARACTER? "character":"whitespace");
+		printf("Looking at %c (searching for %s)\n",c,state == CHARACTER ? "character":"whitespace");
 		if ((c == ';') || (c == 0x0))
 			break;
 		if (state == CHARACTER)
@@ -246,5 +249,6 @@ char ** splitCommandAndArgs(char * line)
 			i++;
 		}
 	}
+	*numberArgs = numArgs;
 	return ret;
 }
