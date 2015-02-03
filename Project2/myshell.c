@@ -20,6 +20,9 @@
 
 int main(int argc, char ** argv)
 {
+	// TODO: Look at number of arguments, if more than one, batch mode, more than 2, error
+	// TODO: If batch file doesn't exist, error out
+	// TODO: Change this to use Dynamically Allocated String
 	char * args[MAX_LINE / 2 + 1];
 	int keep_running = 1;
 
@@ -34,6 +37,8 @@ int main(int argc, char ** argv)
 		fflush(stdout);
 
 		/* Read input from user */
+		
+		// FIXME: Change to dynamic string
 		fgets(input, MAX_LINE, stdin);
 
 		/* Strip the newline character. */
@@ -47,6 +52,9 @@ int main(int argc, char ** argv)
 		}
 
 		/* Sometimes people enter nothing. We don't want to try to parse it. */
+		
+		// TODO: Tokenize on the semicolon
+		// Repeat this loop for every command separated by semicolon, but they should not include the wait command, IE they should run concurrently (except quit)
 		if (input[0] != 0)
 		{
 			i = 0;
@@ -64,6 +72,8 @@ int main(int argc, char ** argv)
 			}
 
 			/* Check for exit */
+			// FIXME: Change this to quit
+			// TODO: Check for end of string, should also force quit (Ctrl-D or end of batch argument)
 			if (strcmp(args[0], "exit") == 0)
 			{
 				/* Received Exit command. */
