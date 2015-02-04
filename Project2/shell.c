@@ -35,6 +35,7 @@ int main(int argc, char ** argv)
 	int keep_running = 1;
 	char * input = NULL;
 	int argnum = 0x0;
+	FILE * batchFile = NULL;
 
 	// First, check for interactive or batch mode
 	if (argc == 1)
@@ -46,8 +47,15 @@ int main(int argc, char ** argv)
 	{
 		// Batch Mode
 		opMode = BATCH;
-		// TODO: Open file
-		// TODO: If batch file doesn't exist, error out
+		// Open file
+		batchFile = fopen(argv[1], "r");
+		// Check for errors
+		if (batchFile == NULL)
+		{
+			// Problem with file specified. Error out
+			perror("Couldn't open batchfile");
+			return 1;
+		}
 	}
 	else
 	{
