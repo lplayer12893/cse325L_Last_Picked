@@ -3,7 +3,7 @@
  * description: This is an implementation of a shell in C
  *  capable of running in interactive or batch mode.
  * authors: Salinas, Sean
- *          Stuyvesant, Lucas
+ *		  Stuyvesant, Lucas
  * class: CSE 325 S15
  * instructor: Zheng
  * assignment: Project #2
@@ -205,35 +205,37 @@ char * getStringFromFile(FILE * f)
  *
  * @return pointer to a list of commands
  */
-char ** getCommands(char *input){
-    //char *list[] = malloc(strlen(input) * sizeof(char));
-    int size = strlen(input);
-    int i = 0,count = 1;
-    char *string = malloc(strlen(input) * sizeof(char));
-	 if (string == NULL)
-	 {
-		 perror("Couldn't malloc");
-		 return NULL;
-	 }
+char ** getCommands(char *input)
+{
+	//char *list[] = malloc(strlen(input) * sizeof(char));
+	int size = strlen(input);
+	int i = 0,count = 1;
+	char *string = malloc(strlen(input) * sizeof(char));
+	if (string == NULL)
+	{
+		perror("Couldn't malloc");
+		return NULL;
+	}
 
-    for(i; i < size; i++)
-    {
-        if(input[i] == ';'){
-            count++;
-        }
-    }
+	for(i = 0; i < size; i++)
+	{
+		if(input[i] == ';')
+		{
+			count++;
+		}
+	}
 
-    char *list[count];
+	char *list[count];
 
-    string = strtok(input,";");
+	string = strtok(input,";");
 
-    for(i = 0; string != NULL; i++)
-    {
-        list[i] = string;
-        string = strtok(NULL,";");
-    }
+	for(i = 0; string != NULL; i++)
+	{
+		list[i] = string;
+		string = strtok(NULL,";");
+	}
 
-    return list;
+	return list;
 }
 
 
