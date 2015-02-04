@@ -103,7 +103,6 @@ int main(int argc, char ** argv)
 			{
 				/* Not exit command. Run as normal. */
 				int pid;
-				// i = 1;
 
 				/* For debugging
 				printf("Going to run %s", args[0]);
@@ -148,6 +147,7 @@ int main(int argc, char ** argv)
 				}
 			}
 			free(args);
+			args = NULL;
 		}
 		free(input);
 		input = NULL;
