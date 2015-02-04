@@ -78,8 +78,8 @@ int main(int argc, char ** argv)
 		else
 		{
 			// Batch Mode
-			// TODO: Read a line from the file
-			// input = getStringFromFile();
+			// Read a line from the file
+			input = getStringFromFile(batchFile);
 		}
 
 		// TODO: Tokenize on the semicolon
