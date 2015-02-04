@@ -21,14 +21,34 @@
 #define WHITESPACE 0x0
 #define CHARACTER 0x1
 
+#define BATCH 0x0
+#define INTERACTIVE 0x1
+
 char * getString();
 char ** splitCommandAndArgs(char *, int *);
 
 int main(int argc, char ** argv)
 {
 	// TODO: Look at number of arguments, if more than one, batch mode, more than 2, error
-	// TODO: If batch file doesn't exist, error out
-	
+	char opMode = 0x0;
+	if (argc == 1)
+	{
+		// Interactive mode
+		opMode = INTERACTIVE;
+	}
+	else if (argc == 2)
+	{
+		// Batch Mode
+		opMode = BATCH;
+		// TODO: Open file
+		// TODO: If batch file doesn't exist, error out
+	}
+	else
+	{
+		fprintf(stderr,"Error: Too many arguments\nUsage: %s [batchfile]\n\tNote: [batchfile] is optional.\n",argv[0]);
+		return 1;
+	}
+
 	char ** args = NULL;
 	int keep_running = 1;
 
@@ -41,9 +61,11 @@ int main(int argc, char ** argv)
 	while (keep_running)
 	{
 		/* Display prompt and flush stdout*/
-		printf("TeamLastPicked > ");
-		fflush(stdout);
-
+		if (opMode == INTERACTIVE)
+		{
+			printf("TeamLastPicked > ");
+			fflush(stdout);
+		}
 		/* Read input from user */
 
 		input = getString();
@@ -144,6 +166,11 @@ int main(int argc, char ** argv)
 		}
 		free(input);
 		input = NULL;
+	}
+	
+	if (opMode == BATCH)
+	{
+		// TODO: Close file
 	}
 	return 0;
 }
