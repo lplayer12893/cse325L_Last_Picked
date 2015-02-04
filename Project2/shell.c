@@ -2,9 +2,8 @@
  * filename: shell.c
  * description: This is an implementation of a shell in C
  *  capable of running in interactive or batch mode.
- * authors: Salinas, Sean
- *		  Stuyvesant, Lucas
- * class: CSE 325 S15
+ * authors: Salinas, Sean and Stuyvesant, Lucas
+ * class: CSE 325, Spring 2015
  * instructor: Zheng
  * assignment: Project #2
  * assigned: January 28th, 2015
