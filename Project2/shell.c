@@ -201,7 +201,8 @@ char ** splitCommandAndArgs(char * line, int * numberArgs)
 	while(1)
 	{
 		c = line[i];
-		printf("Looking at %c (searching for %s)\n",c,state == CHARACTER ? "character":"whitespace");
+		// DEBUG:
+		// printf("Looking at %c (searching for %s)\n",c,state == CHARACTER ? "character":"whitespace");
 		if ((c == ';') || (c == 0x0))
 			break;
 		if (state == CHARACTER)
