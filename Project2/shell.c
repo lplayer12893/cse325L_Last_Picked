@@ -155,7 +155,8 @@ int main(int argc, char ** argv)
 
 	if (opMode == BATCH)
 	{
-		// TODO: Close file
+		// Close batch file
+		fclose(batchFile);
 	}
 	return 0;
 }
