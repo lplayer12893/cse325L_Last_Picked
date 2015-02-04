@@ -90,12 +90,11 @@ int main(int argc, char ** argv)
 			argnum = 0;
 			args = splitCommandAndArgs(input, &argnum);
 
-			/* Check for exit */
-			// FIXME: Change this to quit
+			/* Check for quit */
 			// TODO: Check for end of string, should also force quit (Ctrl-D or end of batch argument)
-			if (strcmp(args[0], "exit") == 0)
+			if (strcmp(args[0], "quit") == 0)
 			{
-				/* Received Exit command. */
+				/* Received quit command. */
 				printf("Goodbye!\n");
 				keep_running = 0;
 			}
