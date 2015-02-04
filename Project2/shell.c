@@ -25,6 +25,7 @@
 #define INTERACTIVE 0x1
 
 char * getString();
+char ** getCommands(char *);
 char ** splitCommandAndArgs(char *, int *);
 
 int main(int argc, char ** argv)
@@ -55,7 +56,7 @@ int main(int argc, char ** argv)
 	/* char * prog_to_run; */
 	// int i;
 	int argnum;
-	
+
 	// Interactive Mode
 	while (keep_running)
 	{
@@ -166,7 +167,7 @@ int main(int argc, char ** argv)
 		free(input);
 		input = NULL;
 	}
-	
+
 	if (opMode == BATCH)
 	{
 		// TODO: Close file
@@ -177,7 +178,7 @@ int main(int argc, char ** argv)
 
 /**
  * This is a function that gets a string of infinite length from stdin. This string should be freed after use.
- * 
+ *
  * @return pointer to new string.
  */
 char * getString()
@@ -199,6 +200,39 @@ char * getString()
 	str[len] = 0x0;
 	return str;
 }
+
+
+/**
+ * Returns a list of commands (strings) represented in a single string
+ *
+ * @return pointer to a list of commands
+ */
+char ** getCommands(char *input){
+    //char *list[] = malloc(strlen(input) * sizeof(char));
+    int size = strlen(input);
+    int i = 0,count = 1;
+    char *string = malloc(strlen(input) * sizeof(char));
+
+    for(i; i < size; i++)
+    {
+        if(input[i] == ';'){
+            count++;
+        }
+    }
+
+    char *list[count];
+
+    string = strtok(input,";");
+
+    for(i = 0; string != NULL; i++)
+    {
+        list[i] = string;
+        string = strtok(NULL,";");
+    }
+
+    return list;
+}
+
 
 /**
  * This is a function that will split a string of commands into a single command and an array of arguments.
