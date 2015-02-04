@@ -25,6 +25,7 @@
 #define INTERACTIVE 0x1
 
 char * getString();
+char * getStringFromFile(FILE *);
 char ** getCommands(char *);
 char ** splitCommandAndArgs(char *, int *);
 
@@ -161,11 +162,22 @@ int main(int argc, char ** argv)
 
 
 /**
- * This is a function that gets a string of infinite length from stdin. This string should be freed after use.
+ * This is a function that gets a string of infinite length from stdin.
  *
- * @return pointer to new string.
+ * @return pointer to new string. This should be freed after use.
  */
 char * getString()
+{
+	return getStringFromFile(stdin);
+}
+
+/**
+ * This is a function that gets a string from a file. Note, this file should be open already.
+ *
+ * @param f File to use
+ * @return pointer to a new string. This should be freed after use.
+ */
+char * getStringFromFile(FILE * f)
 {
 	char * str = malloc(sizeof(char));
 	unsigned int len = 0;
@@ -175,7 +187,7 @@ char * getString()
 		perror("Cannot malloc");
 		return NULL;
 	}
-	while ((c = getchar()) != '\n')
+	while (((c = fgetc(f)) != '\n') && (c != EOF))
 	{
 		str[len] = c;
 		len++;
@@ -184,7 +196,6 @@ char * getString()
 	str[len] = 0x0;
 	return str;
 }
-
 
 /**
  * Returns a list of commands (strings) represented in a single string
