@@ -17,6 +17,8 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 
+#include "getStrings.h"
+
 #define WHITESPACE 0x0
 #define CHARACTER 0x1
 
@@ -160,42 +162,6 @@ int main(int argc, char ** argv)
 	return 0;
 }
 
-
-/**
- * This is a function that gets a string of infinite length from stdin.
- *
- * @return pointer to new string. This should be freed after use.
- */
-char * getString()
-{
-	return getStringFromFile(stdin);
-}
-
-/**
- * This is a function that gets a string from a file. Note, this file should be open already.
- *
- * @param f File to use
- * @return pointer to a new string. This should be freed after use.
- */
-char * getStringFromFile(FILE * f)
-{
-	char * str = malloc(sizeof(char));
-	unsigned int len = 0;
-	char c = 0x0;
-	if (str == NULL)
-	{
-		perror("Cannot malloc");
-		return NULL;
-	}
-	while (((c = fgetc(f)) != '\n') && (c != EOF))
-	{
-		str[len] = c;
-		len++;
-		str = realloc(str,(len+1)*sizeof(char));
-	}
-	str[len] = 0x0;
-	return str;
-}
 
 /**
  * Returns a list of commands (strings) represented in a single string
