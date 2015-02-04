@@ -190,6 +190,11 @@ char ** getCommands(char *input){
     int size = strlen(input);
     int i = 0,count = 1;
     char *string = malloc(strlen(input) * sizeof(char));
+	 if (string == NULL)
+	 {
+		 perror("Couldn't malloc");
+		 return NULL;
+	 }
 
     for(i; i < size; i++)
     {
