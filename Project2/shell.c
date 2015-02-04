@@ -29,7 +29,6 @@ char ** splitCommandAndArgs(char *, int *);
 
 int main(int argc, char ** argv)
 {
-	// TODO: Look at number of arguments, if more than one, batch mode, more than 2, error
 	char opMode = 0x0;
 	if (argc == 1)
 	{
