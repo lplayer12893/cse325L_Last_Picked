@@ -82,6 +82,7 @@ int main(int argc, char ** argv)
 			// Batch Mode
 			// Read a line from the file
 			input = getStringFromFile(batchFile);
+			// TODO: Properly handle EOF
 		}
 
 		// TODO: Tokenize on the semicolon
@@ -136,6 +137,7 @@ int main(int argc, char ** argv)
 					if (strcmp(args[argnum - 1], "&") != 0)
 					{
 						/* Not running as job. */
+						// TODO: When we are running with semicolons, we shouldn't call this for each one.
 						int status;
 						waitpid(pid, &status, 0);
 					}
@@ -152,6 +154,9 @@ int main(int argc, char ** argv)
 		}
 		free(input);
 		input = NULL;
+		
+		// TODO: Somewhere in here, we need to call all of our wait commands for all the PID's we created for batch mode.
+		// TODO: We need to check if, on error, the errno is simply ECHILD then we can ignore it (the fast/slow wait problem)
 	}
 
 	if (opMode == BATCH)
