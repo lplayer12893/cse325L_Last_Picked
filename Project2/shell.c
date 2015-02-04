@@ -31,6 +31,12 @@ char ** splitCommandAndArgs(char *, int *);
 int main(int argc, char ** argv)
 {
 	char opMode = 0x0;
+	char ** args = NULL;
+	int keep_running = 1;
+	char * input = NULL;
+	int argnum = 0x0;
+
+	// First, check for interactive or batch mode
 	if (argc == 1)
 	{
 		// Interactive mode
@@ -45,44 +51,27 @@ int main(int argc, char ** argv)
 	}
 	else
 	{
+		// Too many arguments
 		fprintf(stderr,"Error: Too many arguments\nUsage: %s [batchfile]\n\tNote: [batchfile] is optional.\n",argv[0]);
 		return 1;
 	}
 
-	char ** args = NULL;
-	int keep_running = 1;
-
-	char * input = NULL;
-	/* char * prog_to_run; */
-	// int i;
-	int argnum;
-
-	// Interactive Mode
 	while (keep_running)
 	{
-		/* Display prompt and flush stdout*/
 		if (opMode == INTERACTIVE)
 		{
+			// Display prompt and flush stdout
 			printf("TeamLastPicked > ");
 			fflush(stdout);
+			// Read input from user
+			input = getString();
 		}
-		/* Read input from user */
-
-		input = getString();
-
-		/* Strip the newline character.
-		 This isn't needed anymore, since getString does it for us
-		for (i = 0; i < MAX_LINE; i++)
+		else
 		{
-			if (input[i] == '\n')
-			{
-				input[i] = '\0';
-				break;
-			}
+			// Batch Mode
+			// TODO: Read a line from the file
+			// input = getStringFromFile();
 		}
-		*/
-
-		/* Sometimes people enter nothing. We don't want to try to parse it. */
 
 		// TODO: Tokenize on the semicolon
 		// Repeat this loop for every command separated by semicolon, but they should not include the wait command, IE they should run concurrently (except quit)
@@ -90,19 +79,6 @@ int main(int argc, char ** argv)
 		{
 			// int i = 0;
 			argnum = 0;
-			/* Tokenize using the space as the token
-			 * No longer needed.
-			while (1)
-			{
-				if (argnum == 0)
-					args[argnum] = strtok(input, " ");
-				else
-					args[argnum] = strtok(NULL, " ");
-				if (args[argnum] == NULL)
-					break;
-				argnum++;
-			}
-			*/
 			args = splitCommandAndArgs(input, &argnum);
 
 			/* Check for exit */
@@ -205,6 +181,8 @@ char * getString()
 /**
  * Returns a list of commands (strings) represented in a single string
  *
+ * @param input input string to parse
+ *
  * @return pointer to a list of commands
  */
 char ** getCommands(char *input){
@@ -237,12 +215,19 @@ char ** getCommands(char *input){
 /**
  * This is a function that will split a string of commands into a single command and an array of arguments.
  *
+ * @param line line to parse
+ * @param numberArgs pointer to integer, will be overwritten with the number of arguments we parsed (1 for just a command, 2 for command + 1 argument, etc.
+ *
  * @return array of strings, a[0] will be the command, a[1]...\0 are the arguments. This is ready for passing to execvp
  */
 char ** splitCommandAndArgs(char * line, int * numberArgs)
 {
-
 	char ** ret = NULL;
+	char state = CHARACTER;
+	char c = 0x0;
+	unsigned int i = 0;
+	unsigned int numArgs = 0;
+
 	if (line == NULL)
 		return NULL;
 	else
@@ -254,10 +239,7 @@ char ** splitCommandAndArgs(char * line, int * numberArgs)
 			return NULL;
 		}
 	}
-	char state = CHARACTER;
-	char c = 0x0;
-	unsigned int i = 0;
-	unsigned int numArgs = 0;
+
 	while(1)
 	{
 		c = line[i];
@@ -270,7 +252,7 @@ char ** splitCommandAndArgs(char * line, int * numberArgs)
 			// In the middle of whitespace, searching for next character
 			if (c == ' ')
 			{
-				// Found whitespace, just continue
+				// Found whitespace
 				// Do Nothing
 			}
 			else
@@ -289,6 +271,7 @@ char ** splitCommandAndArgs(char * line, int * numberArgs)
 				// Switch states.
 				state = WHITESPACE;
 			}
+			// Either way, we're done with this character, so advance.
 			i++;
 		}
 		else
@@ -307,6 +290,7 @@ char ** splitCommandAndArgs(char * line, int * numberArgs)
 				// Change state
 				state = CHARACTER;
 			}
+			// Either way, we're done with this character, so advance.
 			i++;
 		}
 	}
