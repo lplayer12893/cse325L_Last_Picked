@@ -313,7 +313,7 @@ char ** getCommands(char *input)
         string = strtok(NULL,";");
     }
 
-    list[i+1] = NULL;
+    list[i] = NULL;
     return list;
 }
 
