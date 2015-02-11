@@ -145,7 +145,7 @@ int main(int argc, char ** argv)
 					 * if everything went ok.
 					 */
 
-					perror("Error");
+					perror("Error running execvp");
 					exit(1);
 				}
 				else
@@ -176,6 +176,10 @@ int main(int argc, char ** argv)
         while (i > 0)
         {
             pid = wait(&status);
+				if (pid == -1)
+				{
+					perror("wait");
+				}
             printf("PID %i returned\n",pid);
             i--;
         }
