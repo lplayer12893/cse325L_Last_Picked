@@ -162,7 +162,6 @@ int main(int argc, char ** argv)
 					if (strcmp(args[argnum - 1], "&") != 0)
 					{
 						/* Not running as job. */
-						// TODO: When we are running with semicolons, we shouldn't call this for each one.
 						int status;
 						waitpid(pid, &status, 0);
 					}
