@@ -117,7 +117,22 @@ void push(int b[], int item)
  */
 int pop(int b[])
 {
+	int i;
 	
+	// First, save our return value
+	int ret = b[0];
+	
+	// Next, shift all our items left.
+	for (i=0; i<8; i++)
+	{
+		b[i] = b[i+1];
+	}
+	
+	// Next, make the last item -1
+	b[9] = -1;
+	
+	// Lastly, return our value
+	return ret;
 }
 
 /**
