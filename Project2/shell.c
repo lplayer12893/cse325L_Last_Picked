@@ -142,6 +142,7 @@ int main(int argc, char ** argv)
 				if (pid == 0)
 				{
 					/* Child */
+					printf("Calling execvp(%p, %p)\n",args[0],args);
 					execvp(args[0], args);
 					/* execvp() only returns on an error. It terminates the child
 					 * if everything went ok.
@@ -397,5 +398,7 @@ char ** splitCommandAndArgs(char * line, int * numberArgs)
 		}
 	}
 	*numberArgs = numArgs;
+	ret = realloc(ret,sizeof(char *) * (numArgs+1));
+	ret[numArgs] = 0x0;
 	return ret;
 }
