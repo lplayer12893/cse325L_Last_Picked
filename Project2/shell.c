@@ -136,7 +136,7 @@ int main(int argc, char ** argv)
 				}
 				else
 					printf("\n");
-				
+
 
 				pid = fork();
 				if (pid == 0)
@@ -302,7 +302,7 @@ char ** getCommands(char *input)
         }
     }
 
-	char **list = malloc(count * sizeof(char *));
+	char **list = malloc((1 + count) * sizeof(char *));
 
     string = strtok(input,";");
 
@@ -312,6 +312,7 @@ char ** getCommands(char *input)
         string = strtok(NULL,";");
     }
 
+    list[i+1] = NULL;
     return list;
 }
 
