@@ -166,5 +166,6 @@ void enqueue(int b[], int item)
  */
 int dequeue(int b[])
 {
-	
+	// Since dequeue pulls from the same side as pop, we can just call it.
+	return pop(b);	
 }
