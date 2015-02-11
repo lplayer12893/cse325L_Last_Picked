@@ -33,7 +33,26 @@ int main(int argc, char ** argv)
 	sscanf(argv[2],"%d",&numConsumers);
 	sscanf(argv[3],"%d",&bufferMode);
 	
-	printf("Running with %d producers, %d consumers, and a %s buffer.\n",numProducers,numConsumers,bufferMode == FIFO? "fifo":"filo");
+	if ((numProducers > 10) || (numProducers < 1))
+	{
+		// Wrong number of producers
+		fprintf(stderr,"Wrong number of producers, should be between 1 and 10.\n");
+		return 1;
+	}
+	if ((numConsumers > 10) || (numConsumers < 1))
+	{
+		// Wrong number of consumers
+		fprintf(stderr,"Wrong number of consumers, should be between 1 and 10.\n");
+		return 1;
+	}
+	if ((bufferMode != FIFO) && (bufferMode != FILO))
+	{
+		// Invalid buffer type
+		fprintf(stderr,"Invalid buffer type given, must be 0 (for FIFO) or 1 (for FILO)\n");
+		return 1;
+	}
+	
+	printf("Running with %d producers, %d consumers, and a %s buffer.\n",numProducers,numConsumers,bufferMode == FIFO? "FIFO":"FILO");
 	
 	// 2. Initialize buffer entries with -1
 	for (i=0;i<10;i++)
