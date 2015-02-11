@@ -1,0 +1,43 @@
+Sean Salinas
+Lucas Stuyvesant
+Team Last Picked
+
+Project 2: Shell
+
+DESCRIPTION: 
+
+This is a shell program that supports batch files. It also supports job 
+control, to a limit. See KNOWN BUGS section below. 
+
+We have understood concurrency to mean that all commands on a single line that
+are separated with semicolons should run in-order, without waiting. Our 
+program does not call wait until all calls to execvp() have been made. This
+behavior does not exhibit true concurrency at the hardware level, in that
+execvp does not return (and thus wait() is not called) until all commands have
+finished. This is out of our control. For true hardware-level concurrency, you
+must supply an ampersand after every command.
+
+FILE LIST:
+   getStrings.c: this file contains functions for getting dynamically-
+      allocated strings.
+   getStrings.h: this is the header file for getStrings.c above
+   infinite.c: this is a source file that simply takes up time. This is used
+      to show job processing and true concurrency.
+   makefile: the file used by GNU make to compile the software.
+   README: this file
+   shell.c: this is the source file for our shell. It does contain its own 
+      functions as well as the shell main function.
+
+COMPILATION:
+To compile, run make. This should output an executable file named shell.
+
+INVOCATION:
+To invoke the program, simple execute the file outputted by make (shell). To 
+supply a batch file, run "shell [batchfile]".
+
+KNOWN BUGS:
+
+Providing & as part of a command (specifically as an argument) causes the & to
+be passed directly to execvp, which does not work for programs that are 
+specified via an indirect path (such as programs residing in the PATH 
+variable).
