@@ -69,6 +69,11 @@ int main(int argc, char ** argv)
 	return 0;
 }
 
+/**
+ * This function prints the state of the buffer.
+ * 
+ * @param b buffer to print
+ */
 void printBuffer(int b[])
 {
 	int i=0;
