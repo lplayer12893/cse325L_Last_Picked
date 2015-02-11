@@ -36,7 +36,7 @@ int main(int argc, char ** argv)
 	char opMode = 0x0;
 	char ** args = NULL;
 	int keep_running = 1;
-	int i = 0;
+	int i = 0, j=0;
 	char * input = NULL;
 	char ** cmds = NULL;
 	int argnum = 0x0;
@@ -92,10 +92,12 @@ int main(int argc, char ** argv)
 		cmds = getCommands(input);
 
 		// TODO: Loop through all commands, and run them concurrently
+		i = 0;
 		while(cmds[i] != NULL)
         {
             // Why if(input[0] != 0)
             argnum = 0;
+				printf("calling splitCommandAndArgs with cmds[%d], address %p\n",i,cmds[i]);
             args = splitCommandAndArgs(cmds[i], &argnum);
 
             // Will exit when cmds is exhausted
@@ -129,8 +131,8 @@ int main(int argc, char ** argv)
 				if (argnum > 1)
 				{
 					printf(" with options: \n");
-					for (i = 1; i < argnum; i++)
-						printf("\t%s\n", args[i]);
+					for (j = 1; j < argnum; j++)
+						printf("\t%s\n", args[j]);
 				}
 				else
 					printf("\n");
@@ -258,6 +260,8 @@ int main(int argc, char ** argv)
 **/
 		// TODO: Somewhere in here, we need to call all of our wait commands for all the PID's we created for batch mode.
 		// TODO: We need to check if, on error, the errno is simply ECHILD then we can ignore it (the fast/slow wait problem)
+		free(cmds);
+		cmds = NULL;
 	}
 
 	printf("Goodbye!\n");
