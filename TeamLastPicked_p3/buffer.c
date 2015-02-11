@@ -54,7 +54,7 @@ void push(int b[], int item)
 		printf("WARNING: Buffer overflow!\n");
 	
 	// Next, shift all items to the right.
-	for (i=9; i > 0; i++)
+	for (i=9; i > 0; i--)
 	{
 		b[i] = b[i-1];
 	}
@@ -77,7 +77,7 @@ int pop(int b[])
 	int ret = b[0];
 	
 	// Next, shift all our items left.
-	for (i=0; i<8; i++)
+	for (i=0; i<9; i++)
 	{
 		b[i] = b[i+1];
 	}
