@@ -85,21 +85,44 @@ void printBuffer(int b[])
 	}
 }
 
+/**
+ * This function pushes an item into the FILO buffer.
+ * 
+ * @param b buffer to use
+ * @param item item to push
+ */
 void push(int b[], int item)
 {
 	
 }
 
+/**
+ * This function pops an item off of the FILO buffer
+ * 
+ * @param b buffer to use
+ * @return the item popped off
+ */
 int pop(int b[])
 {
 	
 }
 
+/**
+ * This function enqueues an item into the FIFO buffer
+ * 
+ * @param b buffer to use
+ * @param item item to enqueue
+ */
 void enqueue(int b[], int item)
 {
 	
 }
 
+/**
+ * This function dequeues an item from the FIFO buffer
+ * @param b buffer to use
+ * @return item dequeued
+ */
 int dequeue(int b[])
 {
 	
