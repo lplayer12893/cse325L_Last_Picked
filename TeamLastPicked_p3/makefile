@@ -7,5 +7,7 @@ CFLAGS=-Wall -Werror -std=c99 -g
 all: p3.c buffer.o
 	${CC} ${CFLAGS} -o p3 p3.c buffer.o
 
+test: testBuffer.c buffer.o
+	${CC} ${CFLAGS} -o testBuffer testBuffer.c buffer.o
 clean:
-	rm -f *.o p3
+	rm -f *.o p3 testBuffer
