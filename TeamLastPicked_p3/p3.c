@@ -15,6 +15,8 @@
 #define FIFO 0
 #define FILO 1
 
+void printBuffer(int b[]);
+
 int main(int argc, char ** argv)
 {
 	// 1. Get command line arguments
@@ -39,14 +41,22 @@ int main(int argc, char ** argv)
 		buffer[i] = -1;
 	}
 	
-	printf("Buffer contents: \n");
-	for (i=0;i<10;i++)
-	{
-		printf("\t%d\n",buffer[i]);
-	}
+	printBuffer(buffer);
+	
 	// 3. Create producer thread(s)
 	// 4. Create consumer thread(s)
 	// 5. Sleep 300 seconds
 	// 6. Exit
 	return 0;
+}
+
+void printBuffer(int b[])
+{
+	int i=0;
+	
+	printf("Buffer contents: \n");
+	for (i=0;i<10;i++)
+	{
+		printf("\tbuffer[%d]: %d\n",i,b[i]);
+	}
 }
