@@ -1,0 +1,19 @@
+Sean Salinas
+Lucas Stuyvesant
+Team Last Picked
+
+Project 3: Multithreaded Producer-Consumer Problem
+
+DESCRIPTION: 
+
+FILE LIST:
+
+COMPILATION:
+To compile, run make. This should output an executable file named shell.
+
+INVOCATION:
+To invoke the program, simple execute the file outputted by make (shell). To 
+supply a batch file, run "shell [batchfile]".
+
+KNOWN BUGS:
+
