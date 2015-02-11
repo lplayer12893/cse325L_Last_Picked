@@ -143,7 +143,20 @@ int pop(int b[])
  */
 void enqueue(int b[], int item)
 {
+	int i;
 	
+	// First, walk the array looking for the first free spot
+	for (i=0;i<9;i++)
+	{
+		if (b[i] == -1)
+			break;
+	}
+	// Check for overflow
+	if ((i == 9) && (b[i] != -1))
+		printf("WARNING: Buffer overflow!");
+	
+	// Add our item
+	b[i] = item;
 }
 
 /**
