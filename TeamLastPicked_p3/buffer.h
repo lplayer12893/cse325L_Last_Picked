@@ -21,5 +21,6 @@ void push(int b[], int item);
 int pop(int b[]);
 void enqueue(int b[], int item);
 int dequeue(int b[]);
+int countItems(int b[]);
 
 #endif // __BUFFER_H
