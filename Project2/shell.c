@@ -85,6 +85,7 @@ int main(int argc, char ** argv)
 			// Batch Mode
 			// Read a line from the file
 			input = getStringFromFile(batchFile);
+			printf("Read >%s< from file.\n",input);
 			// TODO: Properly handle EOF
 		}
 
@@ -95,7 +96,7 @@ int main(int argc, char ** argv)
 		i = 0;
 		while(cmds[i] != NULL)
         {
-				printf("cmds[%d]: (%p) >%s<\n",i,cmds[i], cmds[i]);
+				// printf("cmds[%d]: (%p) >%s<\n",i,cmds[i], cmds[i]);
             // Why if(input[0] != 0)
             argnum = 0;
 				printf("calling splitCommandAndArgs with cmds[%d], address %p\n",i,cmds[i]);
