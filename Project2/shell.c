@@ -85,7 +85,8 @@ int main(int argc, char ** argv)
 			// Batch Mode
 			// Read a line from the file
 			input = getStringFromFile(batchFile);
-			printf("Read >%s< from file.\n",input);
+			if (input == NULL)
+				break;
 			// TODO: Properly handle EOF
 		}
 
