@@ -87,13 +87,11 @@ int main(int argc, char ** argv)
 			input = getStringFromFile(batchFile);
 			if (input == NULL)
 				break;
-			// TODO: Properly handle EOF
 		}
 
 		// Tokenize on the semicolon
 		cmds = getCommands(input);
 
-		// TODO: Loop through all commands, and run them concurrently
 		i = 0;
 		while(cmds[i] != NULL)
         {
@@ -265,8 +263,6 @@ int main(int argc, char ** argv)
 		free(input);
 		input = NULL;
 **/
-		// TODO: Somewhere in here, we need to call all of our wait commands for all the PID's we created for batch mode.
-		// TODO: We need to check if, on error, the errno is simply ECHILD then we can ignore it (the fast/slow wait problem)
 		free(cmds);
 		cmds = NULL;
 	}
