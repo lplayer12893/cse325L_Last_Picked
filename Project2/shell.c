@@ -93,6 +93,8 @@ int main(int argc, char ** argv)
 		cmds = getCommands(input);
 
 		i = 0;
+		if (cmds == NULL)
+			break;
 		while(cmds[i] != NULL)
         {
 				// printf("cmds[%d]: (%p) >%s<\n",i,cmds[i], cmds[i]);
@@ -286,6 +288,8 @@ int main(int argc, char ** argv)
  */
 char ** getCommands(char *input)
 {
+	if (input == NULL)
+		return NULL;
     int size = strlen(input);
     int i = 0,count = 1;
     char *string = malloc(strlen(input) * sizeof(char));
