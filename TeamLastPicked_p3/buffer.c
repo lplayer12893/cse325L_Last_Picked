@@ -123,3 +123,20 @@ int dequeue(int b[])
 	// Since dequeue pulls from the same side as pop, we can just call it.
 	return pop(b);	
 }
+
+/**
+ * This returns how many items are in the buffer.
+ * 
+ * @param b buffer to use
+ * @return number of items in buffer.
+ */
+int countItems(int b[])
+{
+	int i;
+	for (i=0;i<10;i++)
+	{
+		if (b[i] != -1)
+			break;
+	}
+	return i;
+}
