@@ -47,7 +47,7 @@ int main(int argc, char ** argv)
 	{
 		// Interactive mode
 		opMode = INTERACTIVE;
-		printf("Welcome to interactive mode. Type 'quit' to quit.");
+		printf("Welcome to interactive mode. Type 'quit' to quit.\n");
 	}
 	else if (argc == 2)
 	{
