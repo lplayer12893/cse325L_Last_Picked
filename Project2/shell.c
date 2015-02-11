@@ -95,6 +95,7 @@ int main(int argc, char ** argv)
 		i = 0;
 		while(cmds[i] != NULL)
         {
+				printf("cmds[%d]: (%p) >%s<\n",i,cmds[i], cmds[i]);
             // Why if(input[0] != 0)
             argnum = 0;
 				printf("calling splitCommandAndArgs with cmds[%d], address %p\n",i,cmds[i]);
