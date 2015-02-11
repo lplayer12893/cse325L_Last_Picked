@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <sys/types.h>
 #include <stdlib.h>
 
 #include "getStrings.h"
@@ -175,6 +176,7 @@ int main(int argc, char ** argv)
         while (i > 0)
         {
             pid = wait(&status);
+            printf("PID %i returned\n",pid);
             i--;
         }
 /**
@@ -185,20 +187,20 @@ int main(int argc, char ** argv)
 			argnum = 0;
 			args = splitCommandAndArgs(input, &argnum);
 
-			/* Check for quit *
+			Check for quit *
 			// TODO: Check for end of string, should also force quit (Ctrl-D or end of batch argument)
 			if (strcmp(args[0], "quit") == 0)
 			{
-				/* Received quit command. *
+				Received quit command. *
 				printf("Goodbye!\n");
 				keep_running = 0;
 			}
 			else
 			{
-				/* Not exit command. Run as normal. *
+				Not exit command. Run as normal. *
 				int pid;
 
-				/* For debugging
+				For debugging
 				printf("Going to run %s", args[0]);
 				if (argnum > 1)
 				{
@@ -213,9 +215,9 @@ int main(int argc, char ** argv)
 				pid = fork();
 				if (pid == 0)
 				{
-					/* Child *
+					Child *
 					execvp(args[0], args);
-					/* execvp() only returns on an error. It terminates the child
+                    execvp() only returns on an error. It terminates the child
 					 * if everything went ok.
 					 *
 
@@ -224,16 +226,16 @@ int main(int argc, char ** argv)
 				}
 				else
 				{
-					/* Parent *
-					/* Check if we are running it as a job. *
+					Parent *
+					Check if we are running it as a job. *
 					if (strcmp(args[argnum - 1], "&") != 0)
 					{
-						/* Not running as job. *
+						Not running as job. *
 						// TODO: When we are running with semicolons, we shouldn't call this for each one.
 						int status;
 						waitpid(pid, &status, 0);
 					}
-					/* for debugging
+					for debugging
 					else
 					{
 						printf("Running as a job!");
@@ -281,7 +283,7 @@ char ** getCommands(char *input)
 		return NULL;
 	}
 
-    for(i; i < size; i++)
+    for(; i < size; i++)
     {
         if(input[i] == ';')
         {
