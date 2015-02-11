@@ -93,7 +93,20 @@ void printBuffer(int b[])
  */
 void push(int b[], int item)
 {
+	int i;
 	
+	// First, check for overflow
+	if (b[9] != -1)
+		printf("WARNING: Buffer overflow!\n");
+	
+	// Next, shift all items to the right.
+	for (i=9; i > 0; i++)
+	{
+		b[i] = b[i-1];
+	}
+	
+	// Finally, add our item
+	b[0] = item;
 }
 
 /**
