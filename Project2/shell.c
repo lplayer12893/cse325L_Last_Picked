@@ -85,6 +85,7 @@ int main(int argc, char ** argv)
 			// Batch Mode
 			// Read a line from the file
 			input = getStringFromFile(batchFile);
+			// Check for EOF
 			if (input == NULL)
 				break;
 		}
@@ -96,39 +97,23 @@ int main(int argc, char ** argv)
 		if (cmds == NULL)
 			break;
 		while(cmds[i] != NULL)
-        {
-				// printf("cmds[%d]: (%p) >%s<\n",i,cmds[i], cmds[i]);
-            // Why if(input[0] != 0)
-            argnum = 0;
-				printf("calling splitCommandAndArgs with cmds[%d], address %p\n",i,cmds[i]);
-            args = splitCommandAndArgs(cmds[i], &argnum);
+		{
+			// printf("cmds[%d]: (%p) >%s<\n",i,cmds[i], cmds[i]);
+			// Why if(input[0] != 0)
+			argnum = 0;
+			printf("calling splitCommandAndArgs with cmds[%d], address %p\n",i,cmds[i]);
+			args = splitCommandAndArgs(cmds[i], &argnum);
 
-            // Will exit when cmds is exhausted
-				if ((args == NULL) || (argnum == 0))
-				{
-				}
-				else if(strcmp(args[0], "quit") == 0)
-            {
-                keep_running = 0;
-            }
-            else
-            {
-                /**
-                 * PSEUDOCODE:
-                 * fork()
-                 * Loop start{
-                 * assume & is not an argument
-                 * Child:
-                 *      execvp(args[0],args)
-                 *      return on error
-                 * Parent:
-                 *      repeat loop
-                 * Loop end}
-                 * wait for all pid's
-                 *
-                 *
-                 *
-                 */
+			// Will exit when cmds is exhausted
+			if ((args == NULL) || (argnum == 0))
+			{
+			}
+			else if(strcmp(args[0], "quit") == 0)
+			{
+					keep_running = 0;
+			}
+			else
+			{
 				/* Not exit command. Run as normal. */
 				int pid;
 
@@ -143,7 +128,6 @@ int main(int argc, char ** argv)
 				else
 					printf("\n");
 
-
 				pid = fork();
 				if (pid == 0)
 				{
@@ -151,8 +135,8 @@ int main(int argc, char ** argv)
 					printf("Calling execvp(%p, %p)\n",args[0],args);
 					execvp(args[0], args);
 					/* execvp() only returns on an error. It terminates the child
-					 * if everything went ok.
-					 */
+					* if everything went ok.
+					*/
 
 					perror("Error running execvp");
 					exit(1);
@@ -178,99 +162,30 @@ int main(int argc, char ** argv)
 			i++;
 			free(args);
 			args = NULL;
-        }
-
-        // Wait for children to exit. PARENT ONLY
-        int status;
-        pid_t pid;
-        while (i > 0)
-        {
-            pid = wait(&status);
-				if (pid == -1)
-				{
-					perror("wait");
-				}
-            printf("PID %i returned\n",pid);
-            i--;
-        }
-/**
-		// Repeat this loop for every command separated by semicolon, but they should not include the wait command, IE they should run concurrently (except quit)
-		if (input[0] != 0)
-		{
-			// int i = 0;
-			argnum = 0;
-			args = splitCommandAndArgs(input, &argnum);
-
-			Check for quit *
-			// TODO: Check for end of string, should also force quit (Ctrl-D or end of batch argument)
-			if (strcmp(args[0], "quit") == 0)
-			{
-				Received quit command. *
-				printf("Goodbye!\n");
-				keep_running = 0;
-			}
-			else
-			{
-				Not exit command. Run as normal. *
-				int pid;
-
-				For debugging
-				printf("Going to run %s", args[0]);
-				if (argnum > 1)
-				{
-					printf(" with options: \n");
-					for (i = 1; i < argnum; i++)
-						printf("\t%s\n", args[i]);
-				}
-				else
-					printf("\n");
-				*
-
-				pid = fork();
-				if (pid == 0)
-				{
-					Child *
-					execvp(args[0], args);
-                    execvp() only returns on an error. It terminates the child
-					 * if everything went ok.
-					 *
-
-					perror("Error");
-					exit(1);
-				}
-				else
-				{
-					Parent *
-					Check if we are running it as a job. *
-					if (strcmp(args[argnum - 1], "&") != 0)
-					{
-						Not running as job. *
-						// TODO: When we are running with semicolons, we shouldn't call this for each one.
-						int status;
-						waitpid(pid, &status, 0);
-					}
-					for debugging
-					else
-					{
-						printf("Running as a job!");
-					}
-					*
-				}
-			}
-			free(args);
-			args = NULL;
 		}
 
-		free(input);
-		input = NULL;
-**/
+		// Wait for children to exit. PARENT ONLY
+		int status;
+		pid_t pid;
+		while (i > 0)
+		{
+			pid = wait(&status);
+			if (pid == -1)
+			{
+				perror("wait");
+			}
+			printf("PID %i returned\n",pid);
+			i--;
+		}
 		free(cmds);
 		cmds = NULL;
 	}
 
-	printf("Goodbye!\n");
-
-	if (opMode == BATCH)
+	if (opMode == INTERACTIVE)
+	{
+		printf("Goodbye!\n");
+	}
+	else
 	{
 		// Close batch file
 		fclose(batchFile);
@@ -290,35 +205,35 @@ char ** getCommands(char *input)
 {
 	if (input == NULL)
 		return NULL;
-    int size = strlen(input);
-    int i = 0,count = 1;
-    char *string = malloc(strlen(input) * sizeof(char));
+	int size = strlen(input);
+	int i = 0,count = 1;
+	char *string = malloc(strlen(input) * sizeof(char));
 	if (string == NULL)
 	{
 		perror("Couldn't malloc");
 		return NULL;
 	}
 
-    for(; i < size; i++)
-    {
-        if(input[i] == ';')
-        {
-            count++;
-        }
-    }
+	for(; i < size; i++)
+	{
+		if(input[i] == ';')
+		{
+			count++;
+		}
+	}
 
 	char **list = malloc((1 + count) * sizeof(char *));
 
-    string = strtok(input,";");
+	string = strtok(input,";");
 
-    for(i = 0; string != NULL; i++)
-    {
-        list[i] = string;
-        string = strtok(NULL,";");
-    }
+	for(i = 0; string != NULL; i++)
+	{
+		list[i] = string;
+		string = strtok(NULL,";");
+	}
 
-    list[i] = NULL;
-    return list;
+	list[i] = NULL;
+	return list;
 }
 
 /**
