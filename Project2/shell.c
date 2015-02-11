@@ -124,7 +124,7 @@ int main(int argc, char ** argv)
 				/* Not exit command. Run as normal. */
 				int pid;
 
-				/* For debugging
+				// For debugging
 				printf("Going to run %s", args[0]);
 				if (argnum > 1)
 				{
@@ -134,7 +134,7 @@ int main(int argc, char ** argv)
 				}
 				else
 					printf("\n");
-				*/
+				
 
 				pid = fork();
 				if (pid == 0)
@@ -168,6 +168,8 @@ int main(int argc, char ** argv)
 				}
 			}
 			i++;
+			free(args);
+			args = NULL;
         }
 
         // Wait for children to exit. PARENT ONLY
