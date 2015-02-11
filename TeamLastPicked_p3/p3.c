@@ -84,3 +84,23 @@ void printBuffer(int b[])
 		printf("\tbuffer[%d]: %d\n",i,b[i]);
 	}
 }
+
+void push(int b[], int item)
+{
+	
+}
+
+int pop(int b[])
+{
+	
+}
+
+void enqueue(int b[], int item)
+{
+	
+}
+
+int dequeue(int b[])
+{
+	
+}
