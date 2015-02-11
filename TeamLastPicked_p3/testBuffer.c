@@ -83,10 +83,22 @@ int main(void)
 		}
 	}
 	
-	
-	// Test enqueue overflow
-	
-	// Test dequeue overflow
+	if (countItems(b) != 0)
+	{
+		fprintf(stderr,"countItems failed on empty list! Gave %d, should be 0.\n",countItems(b));
+		printBuffer(b);
+		return 1;
+	}
+	for (i=0;i<10;i++)
+	{
+		enqueue(b,i);
+		if (countItems(b) != i+1)
+		{
+			fprintf(stderr,"countItems failed! Gave %d, Should be %d\n",countItems(b),i);
+			printBuffer(b);
+			return 1;
+		}
+	}
 	
 	printf("All buffer tests passed.\n");
 	return 0;
