@@ -102,7 +102,10 @@ int main(int argc, char ** argv)
             args = splitCommandAndArgs(cmds[i], &argnum);
 
             // Will exit when cmds is exhausted
-            if(strcmp(args[0], "quit") == 0)
+				if (args == NULL)
+				{
+				}
+				else if(strcmp(args[0], "quit") == 0)
             {
                 keep_running = 0;
             }
@@ -313,7 +316,7 @@ char ** getCommands(char *input)
         string = strtok(NULL,";");
     }
 
-    list[i] = NULL;
+    list[i+1] = NULL;
     return list;
 }
 
