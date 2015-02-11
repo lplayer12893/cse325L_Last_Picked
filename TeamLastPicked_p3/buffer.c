@@ -135,7 +135,7 @@ int countItems(int b[])
 	int i;
 	for (i=0;i<10;i++)
 	{
-		if (b[i] != -1)
+		if (b[i] == -1)
 			break;
 	}
 	return i;
