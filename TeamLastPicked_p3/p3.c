@@ -11,6 +11,8 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <pthread.h>
 
 #include "buffer.h"
@@ -22,9 +24,9 @@
 
 typedef struct _thread_info
 {
-	int num = 0;
-	int type = -1;
-	int delay = 0;
+	int num;
+	int type;
+	int delay;
 } thread_info;
 
 void * thread_run(void * thread_info);
@@ -74,34 +76,54 @@ int main(int argc, char ** argv)
 	
 	// 2. Initialize buffer entries with -1
 	initializeBuffer(buffer);
-	printBuffer(buffer);
+	// printBuffer(buffer);
 	
 	// 3. Create producer thread(s)
 	for (i = 0; i < numProducers; i++)
 	{
-		// TODO: Create Producer Thread
+		thread_info * t = malloc(sizeof(thread_info));
+		if (t == NULL)
+		{
+			perror("Couldn't malloc");
+			return 1;
+		}
+		t->num = i;
+		t->type = PRODUCER;
+		t->delay = 10 * i; // FIXME: Make this random.
+		pthread_create(&threads[i], NULL, thread_run, (void *) t);
 	}
 	
 	// 4. Create consumer thread(s)
 	for (i = 0; i < numConsumers; i++)
 	{
-		// TODO: Create consumer thread
+		thread_info * t = malloc(sizeof(thread_info));
+		if (t == NULL)
+		{
+			perror("Couldn't malloc");
+			return 1;
+		}
+		t->num = i;
+		t->type = CONSUMER;
+		t->delay = 10 * i; // FIXME: Make this random.
+		pthread_create(&threads[numProducers+i], NULL, thread_run, (void *) t);
 	}
 	// 5. Sleep 300 seconds
+	sleep(5); // FIXME: Make me 300 seconds after all is said and done.
 	// 6. Exit
 	return 0;
 }
 
 void * thread_run(void * arg)
 {
-	thread_info * info = (thread_info *)(arg);
+	thread_info * info = (thread_info *) (arg);
 	if (info->type == PRODUCER)
 		printf("Producer ");
 	else if (info->type == CONSUMER)
 		printf("Consumer ");
 	else
 		printf("UNKNOWN ");
-	printf("thread #%d checking in, with delay of %dms.\n",info->num,info->delay);
+	printf("thread #%d checking in, with delay of %dms.\n", info->num, info->delay);
+	free(arg);
 
 	return NULL;
 }
