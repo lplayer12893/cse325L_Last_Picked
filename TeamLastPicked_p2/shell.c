@@ -10,7 +10,6 @@
  * due: February 11th, 2015
  */
 
-
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -36,7 +35,7 @@ int main(int argc, char ** argv)
 	char opMode = 0x0;
 	char ** args = NULL;
 	int keep_running = 1;
-	int i = 0, j=0;
+	int i = 0, j = 0;
 	char * input = NULL;
 	char ** cmds = NULL;
 	int argnum = 0x0;
@@ -66,7 +65,7 @@ int main(int argc, char ** argv)
 	else
 	{
 		// Too many arguments
-		fprintf(stderr,"Error: Too many arguments\nUsage: %s [batchfile]\n\tNote: [batchfile] is optional.\n",argv[0]);
+		fprintf(stderr, "Error: Too many arguments\nUsage: %s [batchfile]\n\tNote: [batchfile] is optional.\n", argv[0]);
 		return 1;
 	}
 
@@ -96,21 +95,21 @@ int main(int argc, char ** argv)
 		i = 0;
 		if (cmds == NULL)
 			break;
-		while(cmds[i] != NULL)
+		while (cmds[i] != NULL)
 		{
 			// printf("cmds[%d]: (%p) >%s<\n",i,cmds[i], cmds[i]);
 			// Why if(input[0] != 0)
 			argnum = 0;
-			printf("calling splitCommandAndArgs with cmds[%d], address %p\n",i,cmds[i]);
+			printf("calling splitCommandAndArgs with cmds[%d], address %p\n", i, cmds[i]);
 			args = splitCommandAndArgs(cmds[i], &argnum);
 
 			// Will exit when cmds is exhausted
 			if ((args == NULL) || (argnum == 0))
 			{
 			}
-			else if(strcmp(args[0], "quit") == 0)
+			else if (strcmp(args[0], "quit") == 0)
 			{
-					keep_running = 0;
+				keep_running = 0;
 			}
 			else
 			{
@@ -132,11 +131,11 @@ int main(int argc, char ** argv)
 				if (pid == 0)
 				{
 					/* Child */
-					printf("Calling execvp(%p, %p)\n",args[0],args);
+					printf("Calling execvp(%p, %p)\n", args[0], args);
 					execvp(args[0], args);
 					/* execvp() only returns on an error. It terminates the child
-					* if everything went ok.
-					*/
+					 * if everything went ok.
+					 */
 
 					perror("Error running execvp");
 					exit(1);
@@ -152,11 +151,11 @@ int main(int argc, char ** argv)
 						waitpid(pid, &status, 0);
 					}
 					/* for debugging
-					else
-					{
-						printf("Running as a job!");
-					}
-					*/
+					 else
+					 {
+					 printf("Running as a job!");
+					 }
+					 */
 				}
 			}
 			i++;
@@ -174,7 +173,7 @@ int main(int argc, char ** argv)
 			{
 				perror("wait");
 			}
-			printf("PID %i returned\n",pid);
+			printf("PID %i returned\n", pid);
 			i--;
 		}
 		free(cmds);
@@ -193,7 +192,6 @@ int main(int argc, char ** argv)
 	return 0;
 }
 
-
 /**
  * Returns a list of commands (strings) represented in a single string
  *
@@ -206,7 +204,7 @@ char ** getCommands(char *input)
 	if (input == NULL)
 		return NULL;
 	int size = strlen(input);
-	int i = 0,count = 1;
+	int i = 0, count = 1;
 	char *string = malloc(strlen(input) * sizeof(char));
 	if (string == NULL)
 	{
@@ -214,9 +212,9 @@ char ** getCommands(char *input)
 		return NULL;
 	}
 
-	for(; i < size; i++)
+	for (; i < size; i++)
 	{
-		if(input[i] == ';')
+		if (input[i] == ';')
 		{
 			count++;
 		}
@@ -224,12 +222,12 @@ char ** getCommands(char *input)
 
 	char **list = malloc((1 + count) * sizeof(char *));
 
-	string = strtok(input,";");
+	string = strtok(input, ";");
 
-	for(i = 0; string != NULL; i++)
+	for (i = 0; string != NULL; i++)
 	{
 		list[i] = string;
-		string = strtok(NULL,";");
+		string = strtok(NULL, ";");
 	}
 
 	list[i] = NULL;
@@ -264,7 +262,7 @@ char ** splitCommandAndArgs(char * line, int * numberArgs)
 		}
 	}
 
-	while(1)
+	while (1)
 	{
 		c = line[i];
 		// DEBUG:
@@ -284,14 +282,14 @@ char ** splitCommandAndArgs(char * line, int * numberArgs)
 				// Found character.
 				// Grow array
 				numArgs++;
-				ret = realloc(ret,sizeof(char *) * numArgs);
+				ret = realloc(ret, sizeof(char *) * numArgs);
 				if (ret == NULL)
 				{
 					perror("Couldn't realloc");
 					return NULL;
 				}
 				// Put the pointer to the first character in the array
-				ret[numArgs-1] = line + i;
+				ret[numArgs - 1] = line + i;
 				// Switch states.
 				state = WHITESPACE;
 			}
@@ -319,7 +317,7 @@ char ** splitCommandAndArgs(char * line, int * numberArgs)
 		}
 	}
 	*numberArgs = numArgs;
-	ret = realloc(ret,sizeof(char *) * (numArgs+1));
+	ret = realloc(ret, sizeof(char *) * (numArgs + 1));
 	ret[numArgs] = 0x0;
 	return ret;
 }

@@ -41,7 +41,7 @@ char * getStringFromFile(FILE * f)
 	{
 		str[len] = c;
 		len++;
-		str = realloc(str,(len+1)*sizeof(char));
+		str = realloc(str, (len + 1) * sizeof(char));
 	}
 	str[len] = 0x0;
 	if ((c == EOF) && (len == 0))
