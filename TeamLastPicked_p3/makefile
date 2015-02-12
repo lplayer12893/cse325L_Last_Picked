@@ -13,6 +13,7 @@ test: testBuffer.c buffer.o
 	@echo Running Tests...
 	./testBuffer
 	@echo All Tests Passed.
+	@rm testBuffer
 
 clean:
 	rm -f *.o p3 testBuffer
