@@ -14,7 +14,6 @@
 
 #include <stdio.h>
 
-
 void printBuffer(int b[]);
 void initializeBuffer(int b[]);
 void push(int b[], int item);

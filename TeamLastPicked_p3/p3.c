@@ -17,48 +17,47 @@
 #define FIFO 0
 #define FILO 1
 
-
 int main(int argc, char ** argv)
 {
 	// 1. Get command line arguments
-	int numProducers=0, numConsumers=0, bufferMode=-1;
+	int numProducers = 0, numConsumers = 0, bufferMode = -1;
 	int i;
 	int buffer[10];
 	
 	if (argc != 4)
 	{
 		// Wrong number of arguments
-		fprintf(stderr,"Wrong number of arguments.\nUsage: %s [producers] [consumers] [buffer mode]\n\tproducers: number of producer threads\n\tconsumers: number of consumer threads\n\tbuffer mode: the mode for the buffer\n\t\t0: FIFO\n\t\t1: FILO\n\n",argv[0]);
+		fprintf(stderr, "Wrong number of arguments.\nUsage: %s [producers] [consumers] [buffer mode]\n\tproducers: number of producer threads\n\tconsumers: number of consumer threads\n\tbuffer mode: the mode for the buffer\n\t\t0: FIFO\n\t\t1: FILO\n\n", argv[0]);
 		return 1;
 	}
 	
 	// Parse arguments given
-	sscanf(argv[1],"%d",&numProducers);
-	sscanf(argv[2],"%d",&numConsumers);
-	sscanf(argv[3],"%d",&bufferMode);
+	sscanf(argv[1], "%d", &numProducers);
+	sscanf(argv[2], "%d", &numConsumers);
+	sscanf(argv[3], "%d", &bufferMode);
 	
 	// Check for invalid parameters
 	if ((numProducers > 10) || (numProducers < 1))
 	{
 		// Wrong number of producers
-		fprintf(stderr,"Wrong number of producers, should be between 1 and 10.\n");
+		fprintf(stderr, "Wrong number of producers, should be between 1 and 10.\n");
 		return 1;
 	}
 	if ((numConsumers > 10) || (numConsumers < 1))
 	{
 		// Wrong number of consumers
-		fprintf(stderr,"Wrong number of consumers, should be between 1 and 10.\n");
+		fprintf(stderr, "Wrong number of consumers, should be between 1 and 10.\n");
 		return 1;
 	}
 	if ((bufferMode != FIFO) && (bufferMode != FILO))
 	{
 		// Invalid buffer type
-		fprintf(stderr,"Invalid buffer type given, must be 0 (for FIFO) or 1 (for FILO)\n");
+		fprintf(stderr, "Invalid buffer type given, must be 0 (for FIFO) or 1 (for FILO)\n");
 		return 1;
 	}
 	
 	// Print out the information, for a sanity check
-	printf("Running with %d producers, %d consumers, and a %s buffer.\n",numProducers,numConsumers,bufferMode == FIFO? "FIFO":"FILO");
+	printf("Running with %d producers, %d consumers, and a %s buffer.\n", numProducers, numConsumers, bufferMode == FIFO ? "FIFO" : "FILO");
 	
 	// 2. Initialize buffer entries with -1
 	initializeBuffer(buffer);
@@ -71,7 +70,7 @@ int main(int argc, char ** argv)
 	}
 	
 	// 4. Create consumer thread(s)
-	for (i=0; i < numConsumers; i++)
+	for (i = 0; i < numConsumers; i++)
 	{
 		// TODO: Create consumer thread
 	}

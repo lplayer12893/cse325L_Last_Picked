@@ -18,12 +18,12 @@
  */
 void printBuffer(int b[])
 {
-	int i=0;
+	int i = 0;
 	
 	printf("Buffer contents: \n");
-	for (i=0;i<10;i++)
+	for (i = 0; i < 10; i++)
 	{
-		printf("\tbuffer[%d]: %d\n",i,b[i]);
+		printf("\tbuffer[%d]: %d\n", i, b[i]);
 	}
 }
 
@@ -35,7 +35,7 @@ void printBuffer(int b[])
 void initializeBuffer(int b[])
 {
 	int i;
-	for (i=0;i<10;i++)
+	for (i = 0; i < 10; i++)
 		b[i] = -1;
 }
 
@@ -54,9 +54,9 @@ void push(int b[], int item)
 		printf("WARNING: Buffer overflow!\n");
 	
 	// Next, shift all items to the right.
-	for (i=9; i > 0; i--)
+	for (i = 9; i > 0; i--)
 	{
-		b[i] = b[i-1];
+		b[i] = b[i - 1];
 	}
 	
 	// Finally, add our item
@@ -77,9 +77,9 @@ int pop(int b[])
 	int ret = b[0];
 	
 	// Next, shift all our items left.
-	for (i=0; i<9; i++)
+	for (i = 0; i < 9; i++)
 	{
-		b[i] = b[i+1];
+		b[i] = b[i + 1];
 	}
 	
 	// Next, make the last item -1
@@ -100,7 +100,7 @@ void enqueue(int b[], int item)
 	int i;
 	
 	// First, walk the array looking for the first free spot
-	for (i=0;i<9;i++)
+	for (i = 0; i < 9; i++)
 	{
 		if (b[i] == -1)
 			break;
@@ -121,7 +121,7 @@ void enqueue(int b[], int item)
 int dequeue(int b[])
 {
 	// Since dequeue pulls from the same side as pop, we can just call it.
-	return pop(b);	
+	return pop(b);
 }
 
 /**
@@ -133,7 +133,7 @@ int dequeue(int b[])
 int countItems(int b[])
 {
 	int i;
-	for (i=0;i<10;i++)
+	for (i = 0; i < 10; i++)
 	{
 		if (b[i] == -1)
 			break;
