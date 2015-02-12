@@ -11,19 +11,32 @@
  */
 
 #include <stdio.h>
+#include <pthread.h>
 
 #include "buffer.h"
 
 #define FIFO 0
 #define FILO 1
+#define PRODUCER 0
+#define CONSUMER 1
+
+typedef struct _thread_info
+{
+	int num = 0;
+	int type = -1;
+	int delay = 0;
+} thread_info;
+
+void * thread_run(void * thread_info);
 
 int main(int argc, char ** argv)
 {
-	// 1. Get command line arguments
 	int numProducers = 0, numConsumers = 0, bufferMode = -1;
 	int i;
 	int buffer[10];
-	
+	pthread_t threads[20];
+
+	// 1. Get command line arguments
 	if (argc != 4)
 	{
 		// Wrong number of arguments
@@ -79,3 +92,16 @@ int main(int argc, char ** argv)
 	return 0;
 }
 
+void * thread_run(void * arg)
+{
+	thread_info * info = (thread_info *)(arg);
+	if (info->type == PRODUCER)
+		printf("Producer ");
+	else if (info->type == CONSUMER)
+		printf("Consumer ");
+	else
+		printf("UNKNOWN ");
+	printf("thread #%d checking in, with delay of %dms.\n",info->num,info->delay);
+
+	return NULL;
+}

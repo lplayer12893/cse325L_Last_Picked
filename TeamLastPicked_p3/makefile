@@ -5,7 +5,7 @@ CFLAGS=-Wall -Werror -std=c99 -g
 	${CC} ${CFLAGS} -c $<
 
 all: p3.c buffer.o test
-	${CC} ${CFLAGS} -o p3 p3.c buffer.o
+	${CC} ${CFLAGS} -pthread -o p3 p3.c buffer.o
 	@echo Build successful. Please run ./p3
 
 test: testBuffer.c buffer.o
