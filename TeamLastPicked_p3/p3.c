@@ -115,6 +115,7 @@ int main(int argc, char ** argv)
 	}
 	// 5. Sleep 300 seconds
 	sleep(5); // FIXME: Make me 300 seconds after all is said and done.
+
 	// 6. Exit
 	return 0;
 }
@@ -131,6 +132,7 @@ void * thread_run(void * arg)
 	printf("thread #%d checking in, with delay of %dms.\n", info->num, info->delay);
 
 	// TODO: Use the semaphores to synchronize writing to the buffer.
+
 	free(arg);
 	return NULL;
 }

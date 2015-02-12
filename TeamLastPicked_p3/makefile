@@ -12,7 +12,9 @@ test: testBuffer.c buffer.o
 	${CC} ${CFLAGS} -o testBuffer testBuffer.c buffer.o
 	@echo Running Tests...
 	./testBuffer
-	@echo All Tests Passed.
+	@echo -e "\033[0;32m/=====================================\ \033[0m"
+	@echo -e "\033[0;32m|========= All Tests Passed. =========|\033[0m"
+	@echo -e "\033[0;32m\=====================================/\033[0m"
 	@rm testBuffer
 
 clean:
