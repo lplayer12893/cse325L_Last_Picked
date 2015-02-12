@@ -27,6 +27,8 @@ typedef struct _thread_info
 	int num;
 	int type;
 	int delay;
+	int bufferType;
+	int * buffer;
 } thread_info;
 
 void * thread_run(void * thread_info);
@@ -90,6 +92,8 @@ int main(int argc, char ** argv)
 		t->num = i;
 		t->type = PRODUCER;
 		t->delay = 10 * i; // FIXME: Make this random.
+		t->bufferType = bufferMode;
+		t->buffer = buffer;
 		pthread_create(&threads[i], NULL, thread_run, (void *) t);
 	}
 	
@@ -105,7 +109,9 @@ int main(int argc, char ** argv)
 		t->num = i;
 		t->type = CONSUMER;
 		t->delay = 10 * i; // FIXME: Make this random.
-		pthread_create(&threads[numProducers+i], NULL, thread_run, (void *) t);
+		t->bufferType = bufferMode;
+		t->buffer = buffer;
+		pthread_create(&threads[numProducers + i], NULL, thread_run, (void *) t);
 	}
 	// 5. Sleep 300 seconds
 	sleep(5); // FIXME: Make me 300 seconds after all is said and done.
@@ -123,7 +129,8 @@ void * thread_run(void * arg)
 	else
 		printf("UNKNOWN ");
 	printf("thread #%d checking in, with delay of %dms.\n", info->num, info->delay);
-	free(arg);
 
+	// TODO: Use the semaphores to synchronize writing to the buffer.
+	free(arg);
 	return NULL;
 }
