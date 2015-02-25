@@ -135,8 +135,40 @@ void * thread_run(void * arg)
 		printf("UNKNOWN ");
 	printf("thread #%d checking in, with delay of %dms.\n", info->num, info->delay);
 
+    while(1)
+    {
+        sem_wait(&mutex);
 
-	// TODO: Use the semaphores to synchronize writing to the buffer.
+        if (info->type == PRODUCER)
+        {
+            if(countItems(info->t) != 10) //TODO: check if buffer is full. If so, sem_post. Else, write then sem_post
+            {
+                if(info->bufferType == FIFO)
+                {
+                    enque(info->t);
+                }
+                else if(info->bufferType == FILO)
+                {
+                    push(info->t);
+                }
+            }
+        }
+        else if (info->type == CONSUMER)
+        {
+            if(countItems(info->t) != 0)   //TODO: check if buffer is empty. If so, sem_post. Else, write then sem_post
+            {
+                if(info->bufferType == FIFO)
+                {
+                    deque(info->t);
+                }
+                else if(info->bufferType == FILO)
+                {
+                    pop(info->t);
+                }
+            }
+        }
+        sem_post(&mutex);
+    }
 
 	free(arg);
 	return NULL;
