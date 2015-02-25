@@ -140,7 +140,7 @@ void * thread_run(void * arg)
 
     while(1)
     {
-		 int randInt = rand();
+        int randInt = rand();
         sem_wait(&mutex);
 
         if (info->type == PRODUCER)
@@ -149,13 +149,14 @@ void * thread_run(void * arg)
             {
                 if(info->bufferType == FIFO)
                 {
-                    enque(info->buffer,randInt);
+                    enqueue(info->buffer,randInt);
                 }
                 else if(info->bufferType == FILO)
                 {
                     push(info->buffer,randInt);
                 }
             }
+            printf("item %i added by Producer",randInt)
         }
         else if (info->type == CONSUMER)
         {
@@ -163,13 +164,14 @@ void * thread_run(void * arg)
             {
                 if(info->bufferType == FIFO)
                 {
-                    deque(info->buffer, randInt);
+                    randInt = dequeue(info->buffer, randInt);
                 }
                 else if(info->bufferType == FILO)
                 {
-                    pop(info->buffer, randInt);
+                    randInt = pop(info->buffer, randInt);
                 }
             }
+            printf("item %i taken by Consumer",randInt)
         }
         sem_post(&mutex);
     }
