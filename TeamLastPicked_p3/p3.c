@@ -130,6 +130,13 @@ int main(int argc, char ** argv)
 void * thread_run(void * arg)
 {
 	thread_info * info = (thread_info *) (arg);
+	int print;
+	int randInt;
+	struct timespec t;
+	
+	t.tv_sec = 0;
+	t.tv_nsec = info->delay * 1000000;
+	
 	if (info->type == PRODUCER)
 		printf("Producer ");
 	else if (info->type == CONSUMER)
@@ -138,18 +145,17 @@ void * thread_run(void * arg)
 		printf("UNKNOWN ");
 	printf("thread #%d checking in, with delay of %dms.\n", info->num, info->delay);
 
-	struct timespec t;
-	t.tv_sec = 0;
-	t.tv_nsec = info->delay * 1000000;
 
     while(1)
     {
-        int randInt = rand();
+        
 		  nanosleep(&t,NULL);
         sem_wait(&mutex);
+		  print = 0;
 
         if (info->type == PRODUCER)
         {
+				randInt = rand();
             if(countItems(info->buffer) != 10)
             {
                 if(info->bufferType == FIFO)
@@ -160,8 +166,10 @@ void * thread_run(void * arg)
                 {
                     push(info->buffer,randInt);
                 }
+                printf("Item %d added by Producer %d:",randInt, info->num);
+					 print = 1;
             }
-            printf("Item %i added by Producer %d\n",randInt, info->num);
+            
         }
         else if (info->type == CONSUMER)
         {
@@ -169,20 +177,22 @@ void * thread_run(void * arg)
             {
                 if(info->bufferType == FIFO)
                 {
-                    dequeue(info->buffer);
-                }
-                else if(info->bufferType == FILO)
-                {
-                    pop(info->buffer);
                     randInt = dequeue(info->buffer);
                 }
                 else if(info->bufferType == FILO)
                 {
                     randInt = pop(info->buffer);
                 }
+                printf("Item %d taken by Consumer %d:",randInt, info->num);
+					 print = 1;
             }
-            printf("Item %i taken by Consumer %d\n",randInt, info->num);
+            
         }
+        if (print == 1)
+		  {
+				printf(" buffer = ");
+				printBuffer(info->buffer);
+		  }
         sem_post(&mutex);
     }
 
