@@ -138,9 +138,14 @@ void * thread_run(void * arg)
 		printf("UNKNOWN ");
 	printf("thread #%d checking in, with delay of %dms.\n", info->num, info->delay);
 
+	struct timespec t;
+	t.tv_sec = 0;
+	t.tv_nsec = info->delay * 1000000;
+
     while(1)
     {
         int randInt = rand();
+		  nanosleep(&t,NULL);
         sem_wait(&mutex);
 
         if (info->type == PRODUCER)
@@ -156,7 +161,7 @@ void * thread_run(void * arg)
                     push(info->buffer,randInt);
                 }
             }
-            printf("item %i added by Producer",randInt);
+            printf("Item %i added by Producer %d\n",randInt, info->num);
         }
         else if (info->type == CONSUMER)
         {
@@ -176,7 +181,7 @@ void * thread_run(void * arg)
                     randInt = pop(info->buffer);
                 }
             }
-            printf("item %i taken by Consumer",randInt);
+            printf("Item %i taken by Consumer %d\n",randInt, info->num);
         }
         sem_post(&mutex);
     }
