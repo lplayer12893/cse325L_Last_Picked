@@ -140,33 +140,34 @@ void * thread_run(void * arg)
 
     while(1)
     {
+		 int randInt = rand();
         sem_wait(&mutex);
 
         if (info->type == PRODUCER)
         {
-            if(countItems(info->t) != 10) //TODO: check if buffer is full. If so, sem_post. Else, write then sem_post
+            if(countItems(info->buffer) != 10)
             {
                 if(info->bufferType == FIFO)
                 {
-                    enque(info->t);
+                    enque(info->buffer,randInt);
                 }
                 else if(info->bufferType == FILO)
                 {
-                    push(info->t);
+                    push(info->buffer,randInt);
                 }
             }
         }
         else if (info->type == CONSUMER)
         {
-            if(countItems(info->t) != 0)   //TODO: check if buffer is empty. If so, sem_post. Else, write then sem_post
+            if(countItems(info->buffer) != 0)
             {
                 if(info->bufferType == FIFO)
                 {
-                    deque(info->t);
+                    deque(info->buffer, randInt);
                 }
                 else if(info->bufferType == FILO)
                 {
-                    pop(info->t);
+                    pop(info->buffer, randInt);
                 }
             }
         }
