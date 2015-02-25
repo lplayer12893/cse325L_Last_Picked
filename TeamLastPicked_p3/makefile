@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Werror -std=c99 -g
+CFLAGS=-Wall -Werror -g
 
 %.o: %.c %.h
 	${CC} ${CFLAGS} -c $<
