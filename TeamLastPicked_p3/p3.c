@@ -156,7 +156,7 @@ void * thread_run(void * arg)
                     push(info->buffer,randInt);
                 }
             }
-            printf("item %i added by Producer",randInt)
+            printf("item %i added by Producer",randInt);
         }
         else if (info->type == CONSUMER)
         {
@@ -176,7 +176,7 @@ void * thread_run(void * arg)
                     randInt = pop(info->buffer);
                 }
             }
-            printf("item %i taken by Consumer",randInt)
+            printf("item %i taken by Consumer",randInt);
         }
         sem_post(&mutex);
     }
