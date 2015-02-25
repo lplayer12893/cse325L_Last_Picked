@@ -149,7 +149,7 @@ void * thread_run(void * arg)
             {
                 if(info->bufferType == FIFO)
                 {
-                    enque(info->buffer,randInt);
+                    enqueue(info->buffer,randInt);
                 }
                 else if(info->bufferType == FILO)
                 {
@@ -163,11 +163,11 @@ void * thread_run(void * arg)
             {
                 if(info->bufferType == FIFO)
                 {
-                    deque(info->buffer, randInt);
+                    dequeue(info->buffer);
                 }
                 else if(info->bufferType == FILO)
                 {
-                    pop(info->buffer, randInt);
+                    pop(info->buffer);
                 }
             }
         }
