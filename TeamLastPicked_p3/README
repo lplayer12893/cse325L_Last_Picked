@@ -39,4 +39,4 @@ INVOCATION:
 KNOWN BUGS:
     Memory is not freed, since we exit main and the threads don't get a 
 chance to call free.
-No known bugs
+    No other known bugs.
