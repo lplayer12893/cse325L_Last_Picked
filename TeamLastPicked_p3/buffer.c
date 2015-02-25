@@ -20,11 +20,14 @@ void printBuffer(int b[])
 {
 	int i = 0;
 	
-	printf("Buffer contents: \n");
+	printf("[");
 	for (i = 0; i < 10; i++)
 	{
-		printf("\tbuffer[%d]: %d\n", i, b[i]);
+		printf("%d",b[i]);
+		if (i != 9)
+			printf(", ");
 	}
+	printf("]\n");
 }
 
 /**
