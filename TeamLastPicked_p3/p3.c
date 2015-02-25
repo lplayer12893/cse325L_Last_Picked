@@ -124,19 +124,24 @@ int main(int argc, char ** argv)
 	sleep(300);
 
 	// 6. Exit
+	sem_destroy(&mutex);
 	return 0;
 }
 
 void * thread_run(void * arg)
 {
+	// Cast our thread info from the argument we are passed.
 	thread_info * info = (thread_info *) (arg);
 	int print;
 	int randInt;
+	
+	// Used for nanosleep
 	struct timespec t;
-	
+
 	t.tv_sec = 0;
-	t.tv_nsec = info->delay * 1000000;
-	
+	t.tv_nsec = info->delay * 1000000; // Conversion from nanoseconds to milliseconds.
+
+	// Print all thread status.
 	if (info->type == PRODUCER)
 		printf("Producer ");
 	else if (info->type == CONSUMER)
@@ -145,56 +150,74 @@ void * thread_run(void * arg)
 		printf("UNKNOWN ");
 	printf("thread #%d checking in, with delay of %dms.\n", info->num, info->delay);
 
+	while(1)
+	{
+		// First, sleep our random amount of time
+		nanosleep(&t,NULL);
+		
+		// Next, wait for the semaphore.
+		sem_wait(&mutex);
+		
+		// Set our print variable. We don't want to print the buffer if we didn't do anything to it.
+		print = 0;
 
-    while(1)
-    {
-        
-		  nanosleep(&t,NULL);
-        sem_wait(&mutex);
-		  print = 0;
-
-        if (info->type == PRODUCER)
-        {
-				randInt = rand();
-            if(countItems(info->buffer) != 10)
-            {
-                if(info->bufferType == FIFO)
-                {
-                    enqueue(info->buffer,randInt);
-                }
-                else if(info->bufferType == FILO)
-                {
-                    push(info->buffer,randInt);
-                }
-                printf("Item %d added by Producer %d:",randInt, info->num);
-					 print = 1;
-            }
-            
-        }
-        else if (info->type == CONSUMER)
-        {
-            if(countItems(info->buffer) != 0)
-            {
-                if(info->bufferType == FIFO)
-                {
-                    randInt = dequeue(info->buffer);
-                }
-                else if(info->bufferType == FILO)
-                {
-                    randInt = pop(info->buffer);
-                }
-                printf("Item %d taken by Consumer %d:",randInt, info->num);
-					 print = 1;
-            }
-            
-        }
-        if (print == 1)
-		  {
-				printf(" buffer = ");
-				printBuffer(info->buffer);
-		  }
-        sem_post(&mutex);
-    }
+		if (info->type == PRODUCER)
+		{
+			// Producer thread
+			// Make a random value to add
+			randInt = rand();
+			
+			if(countItems(info->buffer) != 10)
+			{
+				// Buffer is not full, so add to it
+				if(info->bufferType == FIFO)
+				{
+					// FIFO = enqueue
+					enqueue(info->buffer,randInt);
+				}
+				else if(info->bufferType == FILO)
+				{
+					// FILO = push
+					push(info->buffer,randInt);
+				}
+				// Print what we did.
+				printf("Item %d added by Producer %d:",randInt, info->num);
+				// Set print flag
+				print = 1;
+			}
+		}
+		else if (info->type == CONSUMER)
+		{
+			// Consumer thread
+			if(countItems(info->buffer) != 0)
+			{
+				// Buffer is not empty
+				if(info->bufferType == FIFO)
+				{
+					// FIFO = dequeue
+					randInt = dequeue(info->buffer);
+				}
+				else if(info->bufferType == FILO)
+				{
+					// FILO = pop
+					randInt = pop(info->buffer);
+				}
+				// Printi what we did
+				printf("Item %d taken by Consumer %d:",randInt, info->num);
+				// Set print flag
+				print = 1;
+			}
+			
+		}
+		if (print == 1)
+		{
+			// We did something to the buffer, so print its state
+			printf(" buffer = ");
+			printBuffer(info->buffer);
+		}
+		// Release the lock on the semaphore
+		sem_post(&mutex);
+	}
 
 	free(arg);
 	return NULL;
