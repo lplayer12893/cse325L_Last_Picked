@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <time.h>
 
 #include "buffer.h"
 
@@ -84,6 +85,8 @@ int main(int argc, char ** argv)
 	initializeBuffer(buffer);
 	// printBuffer(buffer);
 
+	// Initialize RNG
+	srand(time(NULL));
 	// 3. Create producer thread(s)
 	for (i = 0; i < numProducers; i++)
 	{
@@ -95,7 +98,7 @@ int main(int argc, char ** argv)
 		}
 		t->num = i;
 		t->type = PRODUCER;
-		t->delay = 10 * i; // FIXME: Make this random.
+		t->delay = rand() % 1001;
 		t->bufferType = bufferMode;
 		t->buffer = buffer;
 		pthread_create(&threads[i], NULL, thread_run, (void *) t);
@@ -112,13 +115,13 @@ int main(int argc, char ** argv)
 		}
 		t->num = i;
 		t->type = CONSUMER;
-		t->delay = 10 * i; // FIXME: Make this random.
+		t->delay = rand() % 1001;
 		t->bufferType = bufferMode;
 		t->buffer = buffer;
 		pthread_create(&threads[numProducers + i], NULL, thread_run, (void *) t);
 	}
 	// 5. Sleep 300 seconds
-	sleep(5); // FIXME: Make me 300 seconds after all is said and done.
+	sleep(300);
 
 	// 6. Exit
 	return 0;
