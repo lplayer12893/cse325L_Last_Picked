@@ -4,16 +4,38 @@ Team Last Picked
 
 Project 3: Multithreaded Producer-Consumer Problem
 
-DESCRIPTION: 
+DESCRIPTION:
+
+This is a simulator program for a producer-consumer problem. It supports a
+variable number of producers and consumers [1,9] and a shared buffer of size
+10. It uses pthreads for each producer and consumer, and synchronizes the buffer
+modifications with a semaphore.
+
+The semaphore synchronization involved the actual queueing of each pthread, as
+well as the independent random wait of each process before the queueing. This
+random weight effectively randomizes the order in which each pthread accesses
+the buffer.
+
+In the instances of a full or empty buffer, producers do not add and consumers
+do not remove from the buffer respectively.
 
 FILE LIST:
+    buffer.c: this file contains functions for modifying a buffer
+    getStrings.h: this is the header file for buffer.c above
+    makefile: the file used by GNU make to compile the software.
+    README: this file
+    p3.c: this is the source file for our simulator. It contains functions for
+        the thread management and semaphore use.
 
 COMPILATION:
-To compile, run make. This should output an executable file named shell.
+    To compile, run make. This should output an executable file named p3.
 
 INVOCATION:
-To invoke the program, simple execute the file outputted by make (shell). To 
-supply a batch file, run "shell [batchfile]".
+    To invoke the program, simple execute the file outputted by make (p3). The
+        usage is "./p3 [num_producers] [num_consumers] [0 or 1]"
+        The [0,1] corresponds to the type of buffer. 0 represents FIFO, and 1
+        represents FILO.
 
 KNOWN BUGS:
 
+No known bugs
