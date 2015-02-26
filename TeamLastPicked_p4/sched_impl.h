@@ -1,12 +1,15 @@
 #ifndef	__SCHED_IMPL__H__
 #define	__SCHED_IMPL__H__
 
+sem_t mutex;
+
 struct thread_info {
-	/*...Fill this in...*/
+
 };
 
 struct sched_queue {
-	/*...Fill this in...*/
+	list_t q;
+
 };
 
 #endif /* __SCHED_IMPL__H__ */
