@@ -209,7 +209,12 @@ thread_info_t * rr_next_worker(sched_queue_t *queue)
  */
 static void wait_for_queue(sched_queue_t *queue)
 {
-	// TODO: Write this function out.
+	// TODO: Maybe make this wait/sleep instead of brute force?
+	int numInQueue = list_size(queue->q);
+	while(numInQueue == 0)
+	{
+		numInQueue = list_size(queue->q);
+	}
 }
 
 // *************************** END OF FUNCTIONS ********************************
