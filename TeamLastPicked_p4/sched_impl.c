@@ -42,6 +42,7 @@ static void destroy_thread_info(thread_info_t *info)
 	info->queue = NULL;
 	free(info->list_element);
 	info->list_element = NULL;
+	sem_destroy(&(info->exec));
 }
 
 /**
