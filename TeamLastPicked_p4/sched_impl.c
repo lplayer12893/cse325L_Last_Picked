@@ -211,6 +211,7 @@ static void wait_for_queue(sched_queue_t *queue)
 
 // *************************** END OF FUNCTIONS ********************************
 
+// ************************* BEGIN STATIC ALLOCATION ***************************
 /* These are the functions that will be called when we are using a FIFO scheduling method */
 sched_impl_t sched_fifo =
 {
