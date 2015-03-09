@@ -25,7 +25,7 @@ struct thread_info
 	// We also need to keep track of the element container for the linked list
 	list_elem_t *list_element;
 
-	// Thread-specific semaphore
+	// Thread-specific semaphore, for its own execution.
 	sem_t exec;
 };
 
@@ -38,7 +38,7 @@ struct sched_queue
 		sem_t queue_sem;
 		sem_t cpu_sem;
 
-		// Used for the round robin scheduler method. Marks the current process that is running.
+		// Used for the round robin scheduler method. Marks the current process that is running in the round robin cycle.
 		int currentPosition;
 
 };
