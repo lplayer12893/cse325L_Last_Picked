@@ -70,6 +70,7 @@ static void leave_sched_queue(thread_info_t *info)
 	// Update the number of elements in the queue
 	// Note, this will wake up something that is waiting to be in the queue.
 	sem_post(&(info->queue->queue_sem));
+	info->queue->currentPosition--;
 }
 
 /**
@@ -181,9 +182,6 @@ thread_info_t * rr_next_worker(sched_queue_t *queue)
 	{
 		return NULL;
 	}
-	// It's not empty, so increment our position in the queue.
-	queue->currentPosition++;
-
 	// Next, check to make sure we didn't go past the queue length.
 	if (queue->currentPosition == list_size(queue->q))
 	{
@@ -196,10 +194,17 @@ thread_info_t * rr_next_worker(sched_queue_t *queue)
 	int i;
 	for (i = 0; i < queue->currentPosition; i++)
 	{
-		t = t->next;
+		if (t == NULL)
+			t = list_get_head(queue->q);
+		else
+			t = t->next;
 	}
 	// At this point, we are on the right element.
 	thread_info_t *ti = (thread_info_t*) (t->datum);
+
+	// Increment the position for next time.
+	queue->currentPosition++;
+
 	return ti;
 }
 
