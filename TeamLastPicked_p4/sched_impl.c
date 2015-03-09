@@ -143,8 +143,8 @@ static void destroy_sched_queue(sched_queue_t *queue)
  */
 static void wake_up_worker(thread_info_t *info)
 {
-	// TODO: Write this function out.
 	// This should post the thread's semaphore, so it can execute.
+	sem_post(&(info->exec));
 }
 
 /**
