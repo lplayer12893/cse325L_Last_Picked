@@ -19,16 +19,22 @@
  */
 static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
 {
-	// Depends on what we put in the thread_info_t structure.
+	// First, save the location of the queue, since we need it sometimes.
 	info->queue = queue;
+
+	// Next, initialize an element for this to be in the linked list.
 	list_elem_t *n = (list_elem_t*) malloc(sizeof(list_elem_t));
 	if (n == NULL)
 	{
 		perror("Couldn't malloc a thread info!");
 		return;
 	}
+	// Make the data be the thread info.
 	list_elem_init(n, info);
+	// Save it too, because we need it to remove from the list
 	info->list_element = n;
+
+	// Initialize the thread's execution semaphore, initially blocking.
 	sem_init(&(info->exec), 0, 0);
 }
 
@@ -38,10 +44,12 @@ static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
  */
 static void destroy_thread_info(thread_info_t *info)
 {
-	// Depends on what we put in the thread_info_t structure.
+	// Null out the queue pointer.
 	info->queue = NULL;
+	// Free the element.
 	free(info->list_element);
 	info->list_element = NULL;
+	// Destroy the semaphore.
 	sem_destroy(&(info->exec));
 }
 
@@ -51,11 +59,11 @@ static void destroy_thread_info(thread_info_t *info)
  */
 static void enter_sched_queue(thread_info_t *info)
 {
-	// Check if the queue has room
+	// Check if the queue has room, which is kept track of in a semaphore
 	// This will block until the queue has room, and wake up when it does.
 	sem_wait(&(info->queue->queue_sem));
 
-	// Add to the queue.
+	// Add to the queue. This only happens after the semaphore (queue) has room.
 	list_insert_tail(info->queue->q, info->list_element);
 }
 
@@ -70,6 +78,8 @@ static void leave_sched_queue(thread_info_t *info)
 	// Update the number of elements in the queue
 	// Note, this will wake up something that is waiting to be in the queue.
 	sem_post(&(info->queue->queue_sem));
+
+	// Decrement the current position, so we exit in-order.
 	info->queue->currentPosition--;
 }
 
@@ -79,7 +89,7 @@ static void leave_sched_queue(thread_info_t *info)
  */
 static void wait_for_cpu(thread_info_t * info)
 {
-	// Check if the CPU is available. Block on its semaphore
+	// Check if the CPU is available. Block on the thread-specific semaphore
 	sem_wait(&(info->exec));
 }
 
@@ -107,8 +117,14 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
 		queue = (sched_queue_t *) malloc(sizeof(sched_queue_t));
 	}
 	queue->q = (list_t *) malloc(sizeof(list_t));
+	if (queue->q == NULL)
+	{
+		perror("Couldn't initialize queue!");
+		return;
+	}
 	list_init(queue->q);
 
+	// Set current position to be first slot in queue.
 	queue->currentPosition = 0;
 
 	// Initialize the semaphores
@@ -126,7 +142,7 @@ static void destroy_sched_queue(sched_queue_t *queue)
 	// Destroy the queue
 	if (queue != NULL)
 	{
-		// Free the remaining elements in the queue
+		// Free the remaining elements in the queue, if there are any.
 		list_foreach(queue->q, (void *) free);
 		// Free the queue itself
 		free(queue->q);
@@ -143,7 +159,7 @@ static void destroy_sched_queue(sched_queue_t *queue)
  */
 static void wake_up_worker(thread_info_t *info)
 {
-	// This should post the thread's semaphore, so it can execute.
+	// Post the thread's semaphore, so it can execute.
 	sem_post(&(info->exec));
 }
 
@@ -161,7 +177,7 @@ static void wait_for_worker(sched_queue_t *queue)
  */
 thread_info_t * fifo_next_worker(sched_queue_t *queue)
 {
-	// Since we are FIFO, we just return the element that we are on in the queue.
+	// Since we are FIFO, we just return the first element in the queue.
 	list_elem_t *t = list_get_head(queue->q);
 	if (t == NULL)
 		return NULL;
@@ -180,9 +196,11 @@ thread_info_t * rr_next_worker(sched_queue_t *queue)
 	// First, check to make sure the queue isn't empty
 	if (list_size(queue->q) == 0)
 	{
+		// It's empty, so return NULL.
 		return NULL;
 	}
-	// Next, check to make sure we didn't go past the queue length.
+	// Queue isn't empty.
+	// Check to make sure current position didn't go past the queue's length.
 	if (queue->currentPosition == list_size(queue->q))
 	{
 		// We did, so start over at the beginning.
@@ -199,7 +217,7 @@ thread_info_t * rr_next_worker(sched_queue_t *queue)
 		else
 			t = t->next;
 	}
-	// At this point, we are on the right element.
+	// At this point, we are on the right element in the rotation.
 	thread_info_t *ti = (thread_info_t*) (t->datum);
 
 	// Increment the position for next time.
@@ -213,7 +231,6 @@ thread_info_t * rr_next_worker(sched_queue_t *queue)
  */
 static void wait_for_queue(sched_queue_t *queue)
 {
-	// TODO: Maybe make this wait/sleep instead of brute force?
 	int numInQueue = list_size(queue->q);
 	while (numInQueue == 0)
 	{
