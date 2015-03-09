@@ -61,6 +61,33 @@ static void fifo_release_cpu(thread_info_t * info)
 
 }
 
+static void rr_release_cpu(thread_info_t * info)
+{
+
+}
+
+static void rr_wait_for_cpu(thread_info_t * info)
+{
+
+}
+
+static void wake_up_worker (thread_info_t *info)
+{
+
+}
+static void wait_for_worker(sched_queue_t *queue)
+{
+
+}
+
+thread_info_t * next_worker(sched_queue_t *queue)
+{
+	return NULL;
+}
+static void wait_for_queue (sched_queue_t *queue)
+{
+
+}
 /*...More functions go here...*/
 
 /* You need to statically initialize these structures: */
@@ -114,8 +141,11 @@ sched_impl_t sched_fifo =
 	},
 	{
 		init_sched_queue,
-		destroy_sched_queue
-		/*, ...etc... */
+		destroy_sched_queue,
+		wake_up_worker,
+		wait_for_worker,
+		next_worker,
+		wait_for_queue
 	}
 };
 /* These are the functions that will be called when we are using a round robin scheduling method */
@@ -123,12 +153,18 @@ sched_rr =
 {
 	{
 		init_thread_info,
-		destroy_thread_info
-		/*, ...etc... */
+		destroy_thread_info,
+		enter_sched_queue,
+		leave_sched_queue,
+		rr_wait_for_cpu,
+		rr_release_cpu
 	},
 	{
 		init_sched_queue,
-		destroy_sched_queue
-		/*, ...etc... */
+		destroy_sched_queue,
+		wake_up_worker,
+		wait_for_worker,
+		next_worker,
+		wait_for_queue
 	}
 };
