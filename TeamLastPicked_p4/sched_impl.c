@@ -189,6 +189,7 @@ sched_impl_t sched_fifo =
 		wait_for_queue
 	}
 };
+
 /* These are the functions that will be called when we are using a round robin scheduling method */
 sched_rr =
 {

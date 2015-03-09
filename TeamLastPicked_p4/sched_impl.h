@@ -18,14 +18,16 @@
 
 sem_t mutex;
 
-struct thread_info {
+struct thread_info
+{
 
 };
 
-struct sched_queue {
-	list_t * q;
-	int maxSize;
-	int numInQueue;
+struct sched_queue
+{
+		list_t * q;
+		int maxSize;
+		int numInQueue;
 
 };
 
