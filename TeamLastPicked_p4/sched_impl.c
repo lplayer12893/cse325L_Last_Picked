@@ -30,7 +30,7 @@ static void destroy_sched_queue(sched_queue_t *queue)
 	if (queue != NULL)
 	{
 
-		list_foreach(queue->q, (void *)free);
+		list_foreach(queue->q, (void *) free);
 	}
 }
 
