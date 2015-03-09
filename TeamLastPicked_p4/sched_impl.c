@@ -76,7 +76,8 @@ static void leave_sched_queue(thread_info_t *info)
  */
 static void wait_for_cpu(thread_info_t * info)
 {
-	// Check if the CPU is available. Block on the CPU semaphore.
+	// Check if the CPU is available. Block on it's semaphore
+	// FIXME: this should be the info semaphore.
 	sem_wait(&(info->queue->cpu_sem));
 }
 
@@ -86,7 +87,7 @@ static void wait_for_cpu(thread_info_t * info)
  */
 static void release_cpu(thread_info_t * info)
 {
-	// Post the CPU Semaphore. It should wake the next one who is waiting.
+	// Post the CPU Semaphore. It should wake the scheduler thread.
 	sem_post(&(info->queue->cpu_sem));
 }
 
@@ -142,6 +143,7 @@ static void destroy_sched_queue(sched_queue_t *queue)
 static void wake_up_worker(thread_info_t *info)
 {
 	// TODO: Write this function out.
+	// This should post the thread's semaphore, so it can execute.
 }
 
 /**
@@ -150,7 +152,7 @@ static void wake_up_worker(thread_info_t *info)
 static void wait_for_worker(sched_queue_t *queue)
 {
 	// TODO: Write this function out.
-	// Wait until the CPU Semaphore is done
+	// This should block until the CPU semaphore is clear, which is posted by a thread.
 }
 
 /**
