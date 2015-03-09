@@ -37,10 +37,33 @@ static void destroy_sched_queue(sched_queue_t *queue)
 /*...More functions go here...*/
 
 /* You need to statically initialize these structures: */
+/* This structure will have function pointers only! */
+
+/* These are the functions that will be called when we are using a FIFO scheduling method */
 sched_impl_t sched_fifo =
 {
-{ init_thread_info, destroy_thread_info /*, ...etc... */},
-{ init_sched_queue, destroy_sched_queue /*, ...etc... */} }, sched_rr =
+	{
+		init_thread_info,
+		destroy_thread_info
+		/*, ...etc... */
+	},
+	{
+		init_sched_queue,
+		destroy_sched_queue
+		/*, ...etc... */
+	}
+};
+/* These are the functions that will be called when we are using a round robin scheduling method */
+sched_rr =
 {
-{ init_thread_info, destroy_thread_info /*, ...etc... */},
-{ init_sched_queue, destroy_sched_queue /*, ...etc... */} };
+	{
+		init_thread_info,
+		destroy_thread_info
+		/*, ...etc... */
+	},
+	{
+		init_sched_queue,
+		destroy_sched_queue
+		/*, ...etc... */
+	}
+};
