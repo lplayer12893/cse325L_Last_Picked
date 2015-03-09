@@ -19,7 +19,9 @@
 struct thread_info
 {
 	// We need to keep track of where the queue is
-	sched_queue_t queue;
+	sched_queue_t *queue;
+	// We also need to keep track of the element it is in the linked list
+	list_elem_t *list_element;
 };
 
 struct sched_queue
@@ -28,8 +30,8 @@ struct sched_queue
 		list_t * q;
 
 		// Semaphores for our execution. One for the CPU (running state), and one for the queue
-		sem_t queue;
-		sem_t cpu;
+		sem_t queue_sem;
+		sem_t cpu_sem;
 
 		// Used for the round robin scheduler method. Marks the current process that is running.
 		int currentPosition;

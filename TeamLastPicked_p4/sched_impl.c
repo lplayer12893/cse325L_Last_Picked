@@ -22,6 +22,9 @@ static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
 	// TODO: Fill this function out
 	// Depends on what we put in the thread_info_t structure.
 	info->queue = queue;
+	list_elem_t *n = NULL;
+	list_elem_init(n,info);
+	info->list_element = n;
 }
 
 /**
@@ -33,6 +36,8 @@ static void destroy_thread_info(thread_info_t *info)
 	// TODO: Fill this function out
 	// Depends on what we put in the thread_info_t structure.
 	info->queue = NULL;
+	free(info->list_element);
+	info->list_element = NULL;
 }
 
 /**
@@ -43,10 +48,10 @@ static void enter_sched_queue(thread_info_t *info)
 {
 	// Check if the queue has room
 	// This will block until the queue has room, and wake up when it does.
-	sem_wait(&(info->queue));
+	sem_wait(&(info->queue->queue_sem));
 
 	// Add to the queue.
-	list_insert_tail(info->queue,info);
+	list_insert_tail(info->queue->q,info->list_element);
 }
 
 /**
@@ -55,11 +60,11 @@ static void enter_sched_queue(thread_info_t *info)
 static void leave_sched_queue(thread_info_t *info)
 {
 	// Remove from the queue
-	list_remove_elem(info->queue,info);
+	list_remove_elem(info->queue->q,info->list_element);
 
 	// Update the number of elements in the queue
 	// Note, this will wake up something that is waiting to be in the queue.
-	sem_post(&(info->queue));
+	sem_post(&(info->queue->queue_sem));
 }
 
 /**
@@ -120,12 +125,11 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
 	queue->q = (list_t *) malloc(sizeof(list_t));
 	list_init(queue->q);
 
-	queue->maxSize = queue_size;
-	queue->numInQueue = 0;
+	queue->currentPosition = 0;
 
 	// Initialize the semaphores
-	sem_init(&cpu,0,1);
-	sem_init(&queue,0,queue_size);
+	sem_init(&(queue->cpu_sem),0,1);
+	sem_init(&(queue->queue_sem),0,queue_size);
 
 }
 
@@ -145,8 +149,8 @@ static void destroy_sched_queue(sched_queue_t *queue)
 		queue = NULL;
 	}
 	// Destroy the semaphores
-	sem_destroy(&cpu);
-	sem_destroy(&queue);
+	sem_destroy(&(queue->cpu_sem));
+	sem_destroy(&(queue->queue_sem));
 
 }
 
@@ -208,7 +212,7 @@ sched_impl_t sched_fifo =
 };
 
 /* These are the functions that will be called when we are using a round robin scheduling method */
-sched_rr =
+sched_impl_t sched_rr =
 {
 	{
 		init_thread_info,
