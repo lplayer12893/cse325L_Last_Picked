@@ -34,6 +34,9 @@ struct sched_queue
 		sem_t queue_sem;
 		sem_t cpu_sem;
 
+		// Used for max size, RR method.
+		int queueSize;
+
 		// Used for the round robin scheduler method. Marks the current process that is running.
 		int currentPosition;
 

@@ -27,7 +27,7 @@ static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
 		perror("Couldn't malloc a thread info!");
 		return;
 	}
-	list_elem_init(n,info);
+	list_elem_init(n, info);
 	info->list_element = n;
 }
 
@@ -54,7 +54,7 @@ static void enter_sched_queue(thread_info_t *info)
 	sem_wait(&(info->queue->queue_sem));
 
 	// Add to the queue.
-	list_insert_tail(info->queue->q,info->list_element);
+	list_insert_tail(info->queue->q, info->list_element);
 }
 
 /**
@@ -63,7 +63,7 @@ static void enter_sched_queue(thread_info_t *info)
 static void leave_sched_queue(thread_info_t *info)
 {
 	// Remove from the queue
-	list_remove_elem(info->queue->q,info->list_element);
+	list_remove_elem(info->queue->q, info->list_element);
 
 	// Update the number of elements in the queue
 	// Note, this will wake up something that is waiting to be in the queue.
@@ -107,10 +107,11 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
 	list_init(queue->q);
 
 	queue->currentPosition = 0;
+	queue->queueSize = queue_size;
 
 	// Initialize the semaphores
-	sem_init(&(queue->cpu_sem),0,1);
-	sem_init(&(queue->queue_sem),0,queue_size);
+	sem_init(&(queue->cpu_sem), 0, 1);
+	sem_init(&(queue->queue_sem), 0, queue_size);
 
 }
 
@@ -163,7 +164,7 @@ thread_info_t * fifo_next_worker(sched_queue_t *queue)
 		return NULL;
 	else
 	{
-		thread_info_t ti = (thread_info_t)(t->datum);
+		thread_info_t ti = (thread_info_t) (t->datum);
 		return ti;
 	}
 }
@@ -173,8 +174,31 @@ thread_info_t * fifo_next_worker(sched_queue_t *queue)
  */
 thread_info_t * rr_next_worker(sched_queue_t *queue)
 {
-	// TODO: Write this function out.
-	return NULL;
+	// First, check to make sure the queue isn't empty
+	if (list_size(queue) == 0)
+	{
+		return NULL;
+	}
+	// It's not empty, so increment our position in the queue.
+	queue->currentPosition++;
+
+	// Next, check to make sure we didn't go past the queue length.
+	if (queue->currentPosition == list_size(queue))
+	{
+		// We did, so start over at the beginning.
+		queue->currentPosition = 0;
+	}
+
+	// Next, walk the list to get the right element.
+	list_elem_t t = list_get_head(queue);
+	int i;
+	for (i = 0; i < queue->currentPosition; i++)
+	{
+		t = t->next;
+	}
+	// At this point, we are on the right element.
+	thread_info_t ti = (thread_info_t) (t->datum);
+	return ti;
 }
 
 /**
