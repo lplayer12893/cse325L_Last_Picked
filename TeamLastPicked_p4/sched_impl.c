@@ -37,7 +37,6 @@ static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
  */
 static void destroy_thread_info(thread_info_t *info)
 {
-	// TODO: Fill this function out
 	// Depends on what we put in the thread_info_t structure.
 	info->queue = NULL;
 	free(info->list_element);
