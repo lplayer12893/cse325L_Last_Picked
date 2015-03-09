@@ -29,7 +29,7 @@ static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
 	}
 	list_elem_init(n, info);
 	info->list_element = n;
-	sem_init(&(info->exec),0,0);
+	sem_init(&(info->exec), 0, 0);
 }
 
 /**
@@ -211,7 +211,7 @@ static void wait_for_queue(sched_queue_t *queue)
 {
 	// TODO: Maybe make this wait/sleep instead of brute force?
 	int numInQueue = list_size(queue->q);
-	while(numInQueue == 0)
+	while (numInQueue == 0)
 	{
 		numInQueue = list_size(queue->q);
 	}
