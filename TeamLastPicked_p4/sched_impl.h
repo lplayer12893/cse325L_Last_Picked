@@ -33,4 +33,6 @@ struct sched_queue
 
 };
 
+struct sched_queue * masterQueue;
+
 #endif /* __SCHED_IMPL__H__ */

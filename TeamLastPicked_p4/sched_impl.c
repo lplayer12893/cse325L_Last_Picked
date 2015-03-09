@@ -39,10 +39,12 @@ static void destroy_thread_info(thread_info_t *info)
  */
 static void enter_sched_queue(thread_info_t *info)
 {
-	// TODO: Write this function out.
 	// Check if the queue has room
-	// If it does, add to the queue.
-	// If it doesn't, block until we can
+	// This will block until the queue has room, and wake up when it does.
+	sem_wait(&queue);
+
+	// Add to the queue.
+	list_insert_tail(masterQueue,info);
 }
 
 /**
@@ -50,10 +52,12 @@ static void enter_sched_queue(thread_info_t *info)
  */
 static void leave_sched_queue(thread_info_t *info)
 {
-	// TODO: Write this function out.
 	// Remove from the queue
-	// Update the queue stats
-	// Maybe wake up something that is waiting?
+	list_remove_elem(masterQueue,info);
+
+	// Update the number of elements in the queue
+	// Note, this will wake up something that is waiting to be in the queue.
+	sem_post(&queue);
 }
 
 /**
@@ -119,7 +123,8 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
 
 	// Initialize the semaphores
 	sem_init(&cpu,0,1);
-	sem_init(&queue,0,1);
+	sem_init(&queue,0,queue_size);
+
 }
 
 /**
@@ -141,7 +146,6 @@ static void destroy_sched_queue(sched_queue_t *queue)
 	sem_destroy(&cpu);
 	sem_destroy(&queue);
 
-
 }
 
 /**
@@ -150,7 +154,6 @@ static void destroy_sched_queue(sched_queue_t *queue)
 static void wake_up_worker(thread_info_t *info)
 {
 	// TODO: Write this function out.
-	// Lock the CPU Semaphore
 }
 
 /**
