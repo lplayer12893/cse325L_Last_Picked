@@ -106,6 +106,7 @@ static void rr_wait_for_cpu(thread_info_t * info)
  */
 static void init_sched_queue(sched_queue_t *queue, int queue_size)
 {
+	// Initialize the queue
 	if (queue == NULL)
 	{
 		queue = (sched_queue_t *) malloc(sizeof(sched_queue_t));
@@ -115,6 +116,10 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
 
 	queue->maxSize = queue_size;
 	queue->numInQueue = 0;
+
+	// Initialize the semaphores
+	sem_init(&cpu,0,1);
+	sem_init(&queue,0,1);
 }
 
 /**
@@ -123,6 +128,7 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
  */
 static void destroy_sched_queue(sched_queue_t *queue)
 {
+	// Destroy the queue
 	if (queue != NULL)
 	{
 		// Free the remaining elements in the queue
@@ -131,6 +137,10 @@ static void destroy_sched_queue(sched_queue_t *queue)
 		free(queue->q);
 		queue = NULL;
 	}
+	// Destroy the semaphores
+	sem_destroy(&cpu);
+	sem_destroy(&queue);
+
 
 }
 
