@@ -23,15 +23,22 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
 	}
 	queue->q = (list_t *) malloc(sizeof(list_t));
 	list_init(queue->q);
+
+	queue->maxSize = queue_size;
+	queue->numInQueue = 0;
 }
 
 static void destroy_sched_queue(sched_queue_t *queue)
 {
 	if (queue != NULL)
 	{
-
+		// Free the remaining elements in the queue
 		list_foreach(queue->q, (void *) free);
+		// Free the queue itself
+		free(queue->q);
+		queue = NULL;
 	}
+
 }
 
 /*...More functions go here...*/
