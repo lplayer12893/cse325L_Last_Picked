@@ -1,0 +1,18 @@
+Sean Salinas
+Lucas Stuyvesant
+Team Last Picked
+
+Project 4: CPU Scheduler Problem
+
+DESCRIPTION:
+
+FILE LIST:
+
+COMPILATION:
+    To compile, run 'make'. It should output the executable 'scheduler'.
+
+INVOCATION:
+    To invoke the program, simply run 'make test'. All tests should pass.
+
+KNOWN BUGS:
+    No known bugs.
