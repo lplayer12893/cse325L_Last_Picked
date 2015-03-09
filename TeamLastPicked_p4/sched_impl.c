@@ -1,3 +1,14 @@
+/*
+ * filename: sched_impl.c
+ * description: This is our implementation of the FIFO and RR schedulers
+ * authors: Salinas, Sean and Stuyvesant, Lucas
+ * class: CSE 325, Spring 2015
+ * instructor: Zheng
+ * assignment: Project #4
+ * assigned: February 25th, 2015
+ * due: March 11th, 2015
+ */
+
 #include "scheduler.h"
 #include "sched_impl.h"
 
