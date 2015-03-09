@@ -78,7 +78,7 @@ static void leave_sched_queue(thread_info_t *info)
  */
 static void wait_for_cpu(thread_info_t * info)
 {
-	// Check if the CPU is available. Block on it's semaphore
+	// Check if the CPU is available. Block on its semaphore
 	sem_wait(&(info->exec));
 }
 
@@ -109,10 +109,9 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
 	list_init(queue->q);
 
 	queue->currentPosition = 0;
-	queue->queueSize = queue_size;
 
 	// Initialize the semaphores
-	sem_init(&(queue->cpu_sem), 0, 1);
+	sem_init(&(queue->cpu_sem), 0, 0);
 	sem_init(&(queue->queue_sem), 0, queue_size);
 
 }
