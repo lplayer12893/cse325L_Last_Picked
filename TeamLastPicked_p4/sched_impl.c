@@ -29,6 +29,7 @@ static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
 	}
 	list_elem_init(n, info);
 	info->list_element = n;
+	sem_init(&(info->exec),0,0);
 }
 
 /**
