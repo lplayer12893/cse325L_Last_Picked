@@ -21,8 +21,12 @@ struct thread_info
 {
 	// We need to keep track of where the queue is
 	sched_queue_t *queue;
+
 	// We also need to keep track of the element container for the linked list
 	list_elem_t *list_element;
+
+	// Thread-specific semaphore
+	sem_t exec;
 };
 
 struct sched_queue
