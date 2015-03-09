@@ -13,6 +13,8 @@ struct thread_info {
 
 struct sched_queue {
 	list_t * q;
+	int maxSize;
+	int numInQueue;
 
 };
 
