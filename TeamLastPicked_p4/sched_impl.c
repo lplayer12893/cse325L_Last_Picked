@@ -150,6 +150,7 @@ static void destroy_sched_queue(sched_queue_t *queue)
 static void wake_up_worker(thread_info_t *info)
 {
 	// TODO: Write this function out.
+	// Lock the CPU Semaphore
 }
 
 /**
@@ -158,6 +159,7 @@ static void wake_up_worker(thread_info_t *info)
 static void wait_for_worker(sched_queue_t *queue)
 {
 	// TODO: Write this function out.
+	// Wait until the CPU Semaphore is done
 }
 
 /**

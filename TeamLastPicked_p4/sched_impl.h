@@ -16,6 +16,7 @@
 #include "list.h"
 #include <stdlib.h>
 
+// Semaphores for our execution. One for the CPU (running state), and one for the queue
 sem_t cpu;
 sem_t queue;
 
