@@ -16,7 +16,8 @@
 #include "list.h"
 #include <stdlib.h>
 
-sem_t mutex;
+sem_t cpu;
+sem_t queue;
 
 struct thread_info
 {
