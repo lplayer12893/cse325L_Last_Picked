@@ -18,7 +18,8 @@
 
 struct thread_info
 {
-
+	// We need to keep track of where the queue is
+	sched_queue_t queue;
 };
 
 struct sched_queue
@@ -34,7 +35,5 @@ struct sched_queue
 		int currentPosition;
 
 };
-
-struct sched_queue * masterQueue;
 
 #endif /* __SCHED_IMPL__H__ */

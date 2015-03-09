@@ -21,6 +21,7 @@ static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
 {
 	// TODO: Fill this function out
 	// Depends on what we put in the thread_info_t structure.
+	info->queue = queue;
 }
 
 /**
@@ -31,6 +32,7 @@ static void destroy_thread_info(thread_info_t *info)
 {
 	// TODO: Fill this function out
 	// Depends on what we put in the thread_info_t structure.
+	info->queue = NULL;
 }
 
 /**
@@ -41,10 +43,10 @@ static void enter_sched_queue(thread_info_t *info)
 {
 	// Check if the queue has room
 	// This will block until the queue has room, and wake up when it does.
-	sem_wait(&queue);
+	sem_wait(&(info->queue));
 
 	// Add to the queue.
-	list_insert_tail(masterQueue,info);
+	list_insert_tail(info->queue,info);
 }
 
 /**
@@ -53,11 +55,11 @@ static void enter_sched_queue(thread_info_t *info)
 static void leave_sched_queue(thread_info_t *info)
 {
 	// Remove from the queue
-	list_remove_elem(masterQueue,info);
+	list_remove_elem(info->queue,info);
 
 	// Update the number of elements in the queue
 	// Note, this will wake up something that is waiting to be in the queue.
-	sem_post(&queue);
+	sem_post(&(info->queue));
 }
 
 /**
