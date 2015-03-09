@@ -77,7 +77,7 @@ static void leave_sched_queue(thread_info_t *info)
 static void wait_for_cpu(thread_info_t * info)
 {
 	// Check if the CPU is available. Block on the CPU semaphore.
-	sem_wait(info->queue->cpu_sem);
+	sem_wait(&(info->queue->cpu_sem));
 }
 
 /**
@@ -87,7 +87,7 @@ static void wait_for_cpu(thread_info_t * info)
 static void release_cpu(thread_info_t * info)
 {
 	// Post the CPU Semaphore. It should wake the next one who is waiting.
-	sem_post(info->queue->cpu_sem);
+	sem_post(&(info->queue->cpu_sem));
 }
 
 // ******************** SCHEDULER OPERATIONS ***********************************
@@ -159,12 +159,12 @@ static void wait_for_worker(sched_queue_t *queue)
 thread_info_t * fifo_next_worker(sched_queue_t *queue)
 {
 	// Since we are FIFO, we just return the element that we are on in the queue.
-	list_elem_t t = list_get_head(queue->q);
+	list_elem_t *t = list_get_head(queue->q);
 	if (t == NULL)
 		return NULL;
 	else
 	{
-		thread_info_t ti = (thread_info_t) (t->datum);
+		thread_info_t *ti = (thread_info_t*) (t->datum);
 		return ti;
 	}
 }
@@ -175,7 +175,7 @@ thread_info_t * fifo_next_worker(sched_queue_t *queue)
 thread_info_t * rr_next_worker(sched_queue_t *queue)
 {
 	// First, check to make sure the queue isn't empty
-	if (list_size(queue) == 0)
+	if (list_size(queue->q) == 0)
 	{
 		return NULL;
 	}
@@ -183,21 +183,21 @@ thread_info_t * rr_next_worker(sched_queue_t *queue)
 	queue->currentPosition++;
 
 	// Next, check to make sure we didn't go past the queue length.
-	if (queue->currentPosition == list_size(queue))
+	if (queue->currentPosition == list_size(queue->q))
 	{
 		// We did, so start over at the beginning.
 		queue->currentPosition = 0;
 	}
 
 	// Next, walk the list to get the right element.
-	list_elem_t t = list_get_head(queue);
+	list_elem_t *t = list_get_head(queue->q);
 	int i;
 	for (i = 0; i < queue->currentPosition; i++)
 	{
 		t = t->next;
 	}
 	// At this point, we are on the right element.
-	thread_info_t ti = (thread_info_t) (t->datum);
+	thread_info_t *ti = (thread_info_t*) (t->datum);
 	return ti;
 }
 
