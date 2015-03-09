@@ -16,9 +16,9 @@
 #include "list.h"
 #include <stdlib.h>
 
-// Semaphores for our execution. One for the CPU (running state), and one for the queue
-sem_t cpu;
-sem_t queue;
+
+
+
 
 struct thread_info
 {
@@ -27,9 +27,15 @@ struct thread_info
 
 struct sched_queue
 {
+		// The actual queue.
 		list_t * q;
-		int maxSize;
-		int numInQueue;
+
+		// Semaphores for our execution. One for the CPU (running state), and one for the queue
+		sem_t queue;
+		sem_t cpu;
+
+		// Used for the round robin scheduler method. Marks the current process that is running.
+		int currentPosition;
 
 };
 
