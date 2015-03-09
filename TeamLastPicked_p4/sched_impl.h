@@ -16,10 +16,6 @@
 #include "list.h"
 #include <stdlib.h>
 
-
-
-
-
 struct thread_info
 {
 
