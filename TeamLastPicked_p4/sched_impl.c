@@ -79,8 +79,7 @@ static void leave_sched_queue(thread_info_t *info)
 static void wait_for_cpu(thread_info_t * info)
 {
 	// Check if the CPU is available. Block on it's semaphore
-	// FIXME: this should be the info semaphore.
-	sem_wait(&(info->queue->cpu_sem));
+	sem_wait(&(info->exec));
 }
 
 /**
