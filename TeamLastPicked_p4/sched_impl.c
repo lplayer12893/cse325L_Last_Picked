@@ -19,10 +19,14 @@
  */
 static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
 {
-	// TODO: Fill this function out
 	// Depends on what we put in the thread_info_t structure.
 	info->queue = queue;
-	list_elem_t *n = NULL;
+	list_elem_t *n = (list_elem_t*) malloc(sizeof(list_elem_t));
+	if (n == NULL)
+	{
+		perror("Couldn't malloc a thread info!");
+		return;
+	}
 	list_elem_init(n,info);
 	info->list_element = n;
 }

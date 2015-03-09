@@ -15,12 +15,13 @@
 #include <semaphore.h>
 #include "list.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 struct thread_info
 {
 	// We need to keep track of where the queue is
 	sched_queue_t *queue;
-	// We also need to keep track of the element it is in the linked list
+	// We also need to keep track of the element container for the linked list
 	list_elem_t *list_element;
 };
 
