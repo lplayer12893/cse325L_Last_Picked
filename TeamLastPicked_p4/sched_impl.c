@@ -74,42 +74,20 @@ static void leave_sched_queue(thread_info_t *info)
  * This is a function that will block until the scheduler allows it to run.
  * While on the scheduler queue, block until thread is scheduled.
  */
-static void fifo_wait_for_cpu(thread_info_t * info)
+static void wait_for_cpu(thread_info_t * info)
 {
-	// TODO: Write this function out.
-	// Check if the CPU is available.
-	// If it is available, return immediately.
-	// If it isn't, then block until it is.
+	// Check if the CPU is available. Block on the CPU semaphore.
+	sem_wait(info->queue->cpu_sem);
 }
 
 /**
  * This will be called when the thread is ready to release the CPU
  * Voluntarily relinquish the CPU when this thread's timeslice is over (cooperative multithreading).
  */
-static void fifo_release_cpu(thread_info_t * info)
+static void release_cpu(thread_info_t * info)
 {
-	// TODO: Write this function out.
-	// Since we are FIFO, I think we just return immediately, and let the process continue.
-}
-
-/**
- * This will be called when the thread is ready to pause and wait its next turn.
- * Voluntarily relinquish the CPU when this thread's timeslice is over (cooperative multithreading).
- */
-static void rr_release_cpu(thread_info_t * info)
-{
-	// TODO: Write this function out.
-	// Put this in the queue, at the end.
-}
-
-/**
- * This should block until its our turn in the queue.
- * While on the scheduler queue, block until thread is scheduled.
- */
-static void rr_wait_for_cpu(thread_info_t * info)
-{
-	// TODO: Write this function out.
-	// Block until we are up in the queue.
+	// Post the CPU Semaphore. It should wake the next one who is waiting.
+	sem_post(info->queue->cpu_sem);
 }
 
 // ******************** SCHEDULER OPERATIONS ***********************************
@@ -177,7 +155,23 @@ static void wait_for_worker(sched_queue_t *queue)
 /**
  * Select the next worker thread to execute. Returns NULL if the scheduler queue is empty.
  */
-thread_info_t * next_worker(sched_queue_t *queue)
+thread_info_t * fifo_next_worker(sched_queue_t *queue)
+{
+	// Since we are FIFO, we just return the element that we are on in the queue.
+	list_elem_t t = list_get_head(queue->q);
+	if (t == NULL)
+		return NULL;
+	else
+	{
+		thread_info_t ti = (thread_info_t)(t->datum);
+		return ti;
+	}
+}
+
+/**
+ * Select the next worker thread to execute. Returns NULL if the scheduler queue is empty.
+ */
+thread_info_t * rr_next_worker(sched_queue_t *queue)
 {
 	// TODO: Write this function out.
 	return NULL;
@@ -201,15 +195,15 @@ sched_impl_t sched_fifo =
 		destroy_thread_info,
 		enter_sched_queue,
 		leave_sched_queue,
-		fifo_wait_for_cpu,
-		fifo_release_cpu
+		wait_for_cpu,
+		release_cpu
 	},
 	{
 		init_sched_queue,
 		destroy_sched_queue,
 		wake_up_worker,
 		wait_for_worker,
-		next_worker,
+		fifo_next_worker,
 		wait_for_queue
 	}
 };
@@ -222,15 +216,15 @@ sched_impl_t sched_rr =
 		destroy_thread_info,
 		enter_sched_queue,
 		leave_sched_queue,
-		rr_wait_for_cpu,
-		rr_release_cpu
+		wait_for_cpu,
+		release_cpu
 	},
 	{
 		init_sched_queue,
 		destroy_sched_queue,
 		wake_up_worker,
 		wait_for_worker,
-		next_worker,
+		rr_next_worker,
 		wait_for_queue
 	}
 };
