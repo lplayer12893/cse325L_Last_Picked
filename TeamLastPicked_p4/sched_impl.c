@@ -152,8 +152,8 @@ static void wake_up_worker(thread_info_t *info)
  */
 static void wait_for_worker(sched_queue_t *queue)
 {
-	// TODO: Write this function out.
 	// This should block until the CPU semaphore is clear, which is posted by a thread.
+	sem_wait(&(queue->cpu_sem));
 }
 
 /**
