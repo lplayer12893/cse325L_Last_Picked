@@ -41,6 +41,26 @@ static void destroy_sched_queue(sched_queue_t *queue)
 
 }
 
+static void enter_sched_queue(thread_info_t *info)
+{
+
+}
+
+static void leave_sched_queue(thread_info_t *info)
+{
+
+}
+
+static void fifo_wait_for_cpu(thread_info_t * info)
+{
+
+}
+
+static void fifo_release_cpu(thread_info_t * info)
+{
+
+}
+
 /*...More functions go here...*/
 
 /* You need to statically initialize these structures: */
@@ -86,8 +106,11 @@ sched_impl_t sched_fifo =
 {
 	{
 		init_thread_info,
-		destroy_thread_info
-		/*, ...etc... */
+		destroy_thread_info,
+		enter_sched_queue,
+		leave_sched_queue,
+		fifo_wait_for_cpu,
+		fifo_release_cpu
 	},
 	{
 		init_sched_queue,
