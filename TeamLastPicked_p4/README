@@ -6,7 +6,28 @@ Project 4: CPU Scheduler Problem
 
 DESCRIPTION:
 
+This is  the implementation of the user-mode thread scheduler for both Round-
+Robin and First-Come First Served scheduling policies.
+
+
+
 FILE LIST:
+
+scheduler.c: includes a skeleton of a scheduler that uses functions defined
+	in scheduler_impl.c
+scheduler.h: header file for scheduler.c above
+dummy_impl.c: implements a OS scheduled algorithm
+sched_impl.h: header file for sched_impl.c below. Contains data structures per
+	scheduler instance and worker thread, as well as synchronization
+	structures
+sched_impl.c: implements both FCFS and RR scheduling policies to be used by
+	scheduler.c above
+list.h: header file for list.c below
+list.c: implements operations for a linked list
+lab4_tests.c: contains the main function as well as functions testing the 
+	scheduler
+testrunner.c: contains test cases for checking the scheduler solutions
+testrunner.h: header file for testrunner.c above
 
 COMPILATION:
     To compile, run 'make'. It should output the executable 'scheduler'.
