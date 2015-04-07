@@ -208,17 +208,52 @@ int mem_largest_free()
 /* Number of free blocks smaller than "size" bytes. */
 int mem_small_free(int size)
 {
-	return 0;
+	int count = 0;
+
+        struct memoryList *cur = NULL;
+        if(head != NULL)
+        {
+                cur = head;
+                while(cur != NULL)
+                {
+                        if(cur->alloc == '0' && cur->size <= size)    //if free and smaller or equal to block size
+                                count += cur->size;
+
+                        cur = cur->next;
+                }
+        }
+        else
+        {
+                /* TODO: error case if list head is NULL */
+        }
+	return count;
 }       
 
 char mem_is_alloc(void *ptr)
 {
-        return 0;
+        struct memoryList *cur = NULL;
+        if(head != NULL)
+        {
+                cur = head;
+                while(cur != NULL)
+                {
+                        if(cur->ptr == ptr)    //if byte is found
+                                return cur->alloc;
+
+                        cur = cur->next;
+                }
+                /* TODO: error case if ptr is not found in memoryList*/
+        }
+        else
+        {
+                /* TODO: error case if list head is NULL */
+        }
+	return '1';     //If not found, mark it as allocated (because we can't allocate it)
 }
 
 /* 
  * Feel free to use these functions, but do not modify them.  
- * The test code uses them, but you may ind them useful.
+ * The test code uses them, but you may find them useful.
  */
 
 
