@@ -95,6 +95,26 @@ void *mymalloc(size_t requested)
 /* Frees a block of memory previously allocated by mymalloc. */
 void myfree(void* block)
 {
+	struct memoryList *cur = NULL;
+        if(head != NULL)
+        {
+                cur = head;
+                while(cur != NULL)
+                {
+                        if(cur->ptr == block)    //if block is found
+                        {
+                                cur->alloc = '0';       //NOTE: sets alloc to free whether or not it was allocated already
+                                return;
+                        }
+
+                        cur = cur->next;
+                }
+                /* TODO: error case if block is not found in memoryList*/
+        }
+        else
+        {
+                /* TODO: error case if list head is NULL */
+        }
 	return;
 }
 
