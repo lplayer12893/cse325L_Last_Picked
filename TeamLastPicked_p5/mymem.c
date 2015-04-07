@@ -176,7 +176,33 @@ int mem_free()
 /* Number of bytes in the largest contiguous area of unallocated memory */
 int mem_largest_free()
 {
-	return 0;
+	int count = 0;
+        int max = 0;
+        struct memoryList *cur = NULL;
+        if(head != NULL)
+        {
+                cur = head;
+                while(cur != NULL)
+                {
+                        if(cur->alloc == '0')    //if free
+                        {
+                                while(cur != NULL && cur->alloc == '0')
+                                {
+                                        count += cur->size;
+                                        cur = cur->next;
+                                        if(count > max)
+                                                max = count;
+                                }
+                        }
+                        else
+                                cur = cur->next;
+                }
+        }
+        else
+        {
+                /* TODO: error case if list head is NULL */
+        }
+	return max;
 }
 
 /* Number of free blocks smaller than "size" bytes. */
