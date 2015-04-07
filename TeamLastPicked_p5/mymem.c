@@ -130,13 +130,47 @@ int mem_holes()
 /* Get the number of bytes allocated */
 int mem_allocated()
 {
-	return 0;
+	int count = 0;
+        struct memoryList *cur = NULL;
+        if(head != NULL)
+        {
+                cur = head;
+                while(cur != NULL)
+                {
+                        if(cur->alloc == '1')    //if free
+                                count += cur->size;
+
+                        cur = cur->next;
+                }
+        }
+        else
+        {
+                /* TODO: error case if list head is NULL */
+        }
+	return count;
 }
 
 /* Number of non-allocated bytes */
 int mem_free()
 {
-	return 0;
+	int count = 0;
+        struct memoryList *cur = NULL;
+        if(head != NULL)
+        {
+                cur = head;
+                while(cur != NULL)
+                {
+                        if(cur->alloc == '0')    //if free
+                                count += cur->size;
+
+                        cur = cur->next;
+                }
+        }
+        else
+        {
+                /* TODO: error case if list head is NULL */
+        }
+	return count;
 }
 
 /* Number of bytes in the largest contiguous area of unallocated memory */
