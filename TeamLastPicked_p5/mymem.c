@@ -57,7 +57,6 @@ void initmem(strategies strategy, size_t sz)
 
 	/* TODO: release any other memory you were using for bookkeeping when doing a re-initialization! */
 
-
 	myMemory = malloc(sz);
 	
 	/* TODO: Initialize memory management structure. */
