@@ -79,6 +79,7 @@ void *mymalloc(size_t requested)
 	  case NotSet: 
 	            return NULL;
 	  case First:
+
 	            return NULL;
 	  case Best:
 	            return NULL;
@@ -106,7 +107,24 @@ void myfree(void* block)
 /* Get the number of contiguous areas of free space in memory. */
 int mem_holes()
 {
-	return 0;
+        int count = 0;
+        struct memoryList *cur = NULL;
+        if(head != NULL)
+        {
+                cur = head;
+                while(cur != NULL)
+                {
+                        if(cur->alloc == '0')    //if free
+                                count++;
+
+                        cur = cur->next;
+                }
+        }
+        else
+        {
+                /* TODO: error case if list head is NULL */
+        }
+	return count;
 }
 
 /* Get the number of bytes allocated */
