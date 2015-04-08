@@ -2,16 +2,11 @@
 
 typedef enum strategies_enum
 {
-	NotSet = 0,
-	Best = 1,
-	Worst = 2,
-	First = 3,
-	Next = 4
+	NotSet = 0, Best = 1, Worst = 2, First = 3, Next = 4
 } strategies;
 
 char *strategy_name(strategies strategy);
 strategies strategyFromString(char * strategy);
-
 
 void initmem(strategies strategy, size_t sz);
 void *mymalloc(size_t requested);
