@@ -15,7 +15,7 @@ struct memoryList
 	struct memoryList *prev;
 	struct memoryList *next;
 
-	int size; // How many bytes in this block?
+	size_t size; // How many bytes in this block?
 	char alloc; // 1 if this block is allocated, 0 if this block is free.
 	void *ptr; // location of block in memory pool.
 };
@@ -110,10 +110,10 @@ void *mymalloc(size_t requested)
 			struct memoryList * cur = head;
 			while (cur != NULL)
 			{
-				if ((cur->alloc == MEM_FREE) && cur->size >= requested)
+				if ((cur->alloc == MEM_FREE) && (cur->size >= requested))
 				{
 					// Found a block suitable.
-					if (cur->size < requested)
+					if (cur->size > requested)
 					{
 						// There will be memory left over, so alloc a new block
 						struct memoryList * leftover = insertIntoList(cur);
