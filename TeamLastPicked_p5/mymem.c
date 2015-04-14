@@ -107,6 +107,7 @@ void *mymalloc(size_t requested)
 	if (DEBUG)
 		printf("mymalloc: requested %d bytes.\n",requested);
 	struct memoryList * toUse = NULL;
+	struct memoryList * cur = head;
 	switch (myStrategy)
 	{
 		case NotSet:
@@ -114,7 +115,6 @@ void *mymalloc(size_t requested)
 			return NULL;
 		case First:
 		{
-			struct memoryList * cur = head;
 			while ((cur != NULL) && (toUse == NULL))
 			{
 				if ((cur->alloc == MEM_FREE) && (cur->size >= requested))
