@@ -12,12 +12,11 @@
 struct memoryList
 {
 	// doubly-linked list
-	struct memoryList *last;
+	struct memoryList *prev;
 	struct memoryList *next;
 
 	int size; // How many bytes in this block?
-	char alloc; // 1 if this block is allocated,
-	// 0 if this block is free.
+	char alloc; // 1 if this block is allocated, 0 if this block is free.
 	void *ptr; // location of block in memory pool.
 };
 
