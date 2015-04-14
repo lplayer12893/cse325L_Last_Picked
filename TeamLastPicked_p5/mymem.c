@@ -51,8 +51,6 @@ void removeFromList(struct memoryList*);
 
 void initmem(strategies strategy, size_t sz)
 {
-	if (DEBUG)
-		printf("initmem called, size %d\n",sz);
 	myStrategy = strategy;
 
 	/* all implementations will need an actual block of memory to use */
@@ -88,6 +86,9 @@ void initmem(strategies strategy, size_t sz)
 	new->ptr = myMemory;
 	new->size = sz;
 	new->alloc = MEM_FREE;
+	
+	if (DEBUG)
+		printf("initmem called, size %d, first ptr %p\n",sz,myMemory);
 }
 
 /* Allocate a block of memory with the requested size.
@@ -114,17 +115,19 @@ void *mymalloc(size_t requested)
 		case First:
 		{
 			struct memoryList * cur = head;
-			while (cur != NULL)
+			while ((cur != NULL) && (toUse == NULL))
 			{
 				if ((cur->alloc == MEM_FREE) && (cur->size >= requested))
 				{
 					// Found a block suitable.
+					if (DEBUG)
+						printf("Found a suitable block, ptr %p, size %d\n",cur->ptr,cur->size);
 					toUse = cur;
-					break;
 				}
 				else
 					cur = cur->next;
 			}
+			break;
 		}
 		case Best:
 			// Best Fit, smallest suitable block
@@ -145,6 +148,8 @@ void *mymalloc(size_t requested)
 		printf("Found a block, ptr %p, size %d.\n",toUse->ptr,toUse->size);
 	if (toUse->size > requested)
 	{
+		if (DEBUG)
+			printf("There will be leftover of size %d, allocating new mm_struct.\n",(toUse->size-requested));
 		// There will be memory left over, so alloc a new block
 		struct memoryList * leftover = insertIntoList(toUse);
 		if (leftover == NULL)
@@ -169,7 +174,7 @@ void *mymalloc(size_t requested)
 void myfree(void *block)
 {
 	if (DEBUG)
-		printf("myfree called on block %p",block);
+		printf("myfree called on block %p, ",block);
 	struct memoryList *cur = NULL;
 	if (head != NULL)
 	{
@@ -179,7 +184,7 @@ void myfree(void *block)
 			if (cur->ptr == block) //if block is found
 			{
 				if (DEBUG)
-					printf("size %d",cur->size);
+					printf("size %d.\n",cur->size);
 				if (cur->alloc == MEM_FREE)
 				{
 					printf("Warning: Called myfree with %p, but it was already marked as not allocated.\n", block);
@@ -209,7 +214,7 @@ void myfree(void *block)
 					{
 						// Next block is free, so coalesce.
 						if (DEBUG)
-							printf("Next block is free, size %d.",cur->next->size);
+							printf("Next block is free, size %d. ",cur->next->size);
 						cur->size += cur->next->size;
 						removeFromList(cur->next);
 						if (DEBUG)
@@ -344,7 +349,7 @@ int mem_small_free(int size)
 		while (cur != NULL)
 		{
 			if ((cur->alloc == MEM_FREE) && (cur->size <= size)) //if free and smaller or equal to block size
-				count += cur->size;
+				count ++;
 			cur = cur->next;
 		}
 	}
