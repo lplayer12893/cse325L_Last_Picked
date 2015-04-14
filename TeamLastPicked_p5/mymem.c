@@ -31,7 +31,7 @@ static struct memoryList *next;
 
 /* initmem must be called prior to mymalloc and myfree.
 
- initmem may be called more than once in a given exeuction;
+ initmem may be called more than once in a given execution;
  when this occurs, all memory you previously malloc'ed  *must* be freed,
  including any existing bookkeeping data.
 
@@ -76,13 +76,16 @@ void *mymalloc(size_t requested)
 		case NotSet:
 			return NULL;
 		case First:
-
+			// First Fit, starting from beginning of list
 			return NULL;
 		case Best:
+			// Best Fit, smallest suitable block
 			return NULL;
 		case Worst:
+			// Worst fit, largest suitable block
 			return NULL;
 		case Next:
+			// Next fit, start from the last allocated block. wraps around.
 			return NULL;
 	}
 	return NULL;
