@@ -30,6 +30,7 @@ static struct memoryList *last = NULL;
 
 #define MEM_FREE 0
 #define MEM_USED 1
+#define DEBUG 1
 
 struct memoryList * insertIntoList(struct memoryList *);
 void removeFromList(struct memoryList*);
@@ -100,6 +101,8 @@ void *mymalloc(size_t requested)
 	{
 		printf("ERROR: mymalloc called, but initMem was not called first.\n");
 	}
+	if (DEBUG)
+		printf("mymalloc: requested %d bytes.\n",requested);
 	switch (myStrategy)
 	{
 		case NotSet:
@@ -113,6 +116,8 @@ void *mymalloc(size_t requested)
 				if ((cur->alloc == MEM_FREE) && (cur->size >= requested))
 				{
 					// Found a block suitable.
+					if (DEBUG)
+						printf("Found a block, ptr %p, size %d.\n",cur->ptr,cur->size);
 					if (cur->size > requested)
 					{
 						// There will be memory left over, so alloc a new block
@@ -122,10 +127,13 @@ void *mymalloc(size_t requested)
 							perror("Couldn't malloc structure for leftover");
 							return NULL;
 						}
-
+						
 						leftover->alloc = MEM_FREE; // Leftover memory is free
 						leftover->ptr = cur->ptr + requested; // ptr is the start of the leftover block
 						leftover->size = cur->size - requested; // size is the leftover size
+						
+						if (DEBUG)
+							printf("Leftover starts at %p, size %d\n",leftover->ptr,leftover->size);
 					}
 
 					cur->alloc = MEM_USED;
@@ -153,6 +161,8 @@ void *mymalloc(size_t requested)
 /* Frees a block of memory previously allocated by mymalloc. */
 void myfree(void *block)
 {
+	if (DEBUG)
+		printf("myfree called on block %p",block);
 	struct memoryList *cur = NULL;
 	if (head != NULL)
 	{
@@ -161,6 +171,8 @@ void myfree(void *block)
 		{
 			if (cur->ptr == block) //if block is found
 			{
+				if (DEBUG)
+					printf("size %d",cur->size);
 				if (cur->alloc == MEM_FREE)
 				{
 					printf("Warning: Called myfree with %p, but it was already marked as not allocated.\n", block);
@@ -173,9 +185,14 @@ void myfree(void *block)
 					if (cur->prev->alloc == MEM_FREE)
 					{
 						// Previous block is free, so coalesce.
+						if (DEBUG)
+							printf("Previous block is free, size %d. ",cur->prev->size);
 						cur->prev->size += cur->size;
 						cur = cur->prev;
 						removeFromList(cur->next);
+						
+						if (DEBUG)
+							printf("Coalesced block size is now %d\n",cur->size);
 					}
 				}
 				// Check if next block is free, if so we must coalesce.
@@ -184,8 +201,12 @@ void myfree(void *block)
 					if (cur->next->alloc == MEM_FREE)
 					{
 						// Next block is free, so coalesce.
+						if (DEBUG)
+							printf("Next block is free, size %d.",cur->next->size);
 						cur->size += cur->next->size;
 						removeFromList(cur->next);
+						if (DEBUG)
+							printf("Coalesced block size is now %d\n",cur->size);
 					}
 				}
 				return;
