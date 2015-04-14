@@ -51,6 +51,8 @@ void removeFromList(struct memoryList*);
 
 void initmem(strategies strategy, size_t sz)
 {
+	if (DEBUG)
+		printf("initmem called, size %d\n",sz);
 	myStrategy = strategy;
 
 	/* all implementations will need an actual block of memory to use */
@@ -103,6 +105,7 @@ void *mymalloc(size_t requested)
 	}
 	if (DEBUG)
 		printf("mymalloc: requested %d bytes.\n",requested);
+	struct memoryList * toUse = NULL;
 	switch (myStrategy)
 	{
 		case NotSet:
@@ -116,34 +119,12 @@ void *mymalloc(size_t requested)
 				if ((cur->alloc == MEM_FREE) && (cur->size >= requested))
 				{
 					// Found a block suitable.
-					if (DEBUG)
-						printf("Found a block, ptr %p, size %d.\n",cur->ptr,cur->size);
-					if (cur->size > requested)
-					{
-						// There will be memory left over, so alloc a new block
-						struct memoryList * leftover = insertIntoList(cur);
-						if (leftover == NULL)
-						{
-							perror("Couldn't malloc structure for leftover");
-							return NULL;
-						}
-						
-						leftover->alloc = MEM_FREE; // Leftover memory is free
-						leftover->ptr = cur->ptr + requested; // ptr is the start of the leftover block
-						leftover->size = cur->size - requested; // size is the leftover size
-						
-						if (DEBUG)
-							printf("Leftover starts at %p, size %d\n",leftover->ptr,leftover->size);
-					}
-
-					cur->alloc = MEM_USED;
-					cur->size = requested;
-					return cur->ptr;
+					toUse = cur;
+					break;
 				}
 				else
 					cur = cur->next;
 			}
-			return NULL;
 		}
 		case Best:
 			// Best Fit, smallest suitable block
@@ -155,7 +136,33 @@ void *mymalloc(size_t requested)
 			// Next fit, start from the last allocated block. wraps around.
 			return NULL;
 	}
-	return NULL;
+	if (toUse == NULL)
+	{
+		printf("Couldn't find a suitable block! Requested size %d\n",requested);
+		return NULL;
+	}
+	if (DEBUG)
+		printf("Found a block, ptr %p, size %d.\n",toUse->ptr,toUse->size);
+	if (toUse->size > requested)
+	{
+		// There will be memory left over, so alloc a new block
+		struct memoryList * leftover = insertIntoList(toUse);
+		if (leftover == NULL)
+		{
+			perror("Couldn't malloc structure for leftover");
+			return NULL;
+		}
+		
+		leftover->alloc = MEM_FREE; // Leftover memory is free
+		leftover->ptr = toUse->ptr + requested; // ptr is the start of the leftover block
+		leftover->size = toUse->size - requested; // size is the leftover size
+		
+		if (DEBUG)
+			printf("Leftover starts at %p, size %d\n",leftover->ptr,leftover->size);
+	}
+	toUse->alloc = MEM_USED;
+	toUse->size = requested;
+	return toUse->ptr;
 }
 
 /* Frees a block of memory previously allocated by mymalloc. */
