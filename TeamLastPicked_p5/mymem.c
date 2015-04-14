@@ -188,7 +188,7 @@ int mem_free()
 	}
 	else
 	{
-		/* TODO: error case if list head is NULL */
+		printf("Called mem_free, but head is NULL!\n");
 	}
 	return count;
 }
@@ -220,7 +220,7 @@ int mem_largest_free()
 	}
 	else
 	{
-		/* TODO: error case if list head is NULL */
+		printf("Called mem_largest_free, but head is NULL!\n");
 	}
 	return max;
 }
@@ -244,7 +244,7 @@ int mem_small_free(int size)
 	}
 	else
 	{
-		/* TODO: error case if list head is NULL */
+		printf("Called mem_small_free, but head is NULL!\n");
 	}
 	return count;
 }
@@ -262,11 +262,11 @@ char mem_is_alloc(void *ptr)
 
 			cur = cur->next;
 		}
-		/* TODO: error case if ptr is not found in memoryList */
+		printf("Called mem_is_alloc with %p, but it was not found!\n",ptr);
 	}
 	else
 	{
-		/* TODO: error case if list head is NULL */
+		printf("Called mem_is_alloc, but head is NULL!\n");
 	}
 	return '1'; //If not found, mark it as allocated (because we can't allocate it)
 }
