@@ -113,7 +113,7 @@ void myfree(void *block)
 	}
 	else
 	{
-		printf("Called myfree, but our internal list HEAD is NULL!");
+		printf("Called myfree, but our internal list HEAD is NULL!\n");
 		return;
 	}
 }
