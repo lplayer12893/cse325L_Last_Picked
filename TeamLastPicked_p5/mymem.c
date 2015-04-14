@@ -184,8 +184,11 @@ void myfree(void *block)
 				}
 				return;
 			}
-
-			cur = cur->next;
+			else
+			{
+				// block is not found yet
+				cur = cur->next;
+			}
 		}
 		printf("Called myfree with %p, but it was not found!\n", block);
 		return;
