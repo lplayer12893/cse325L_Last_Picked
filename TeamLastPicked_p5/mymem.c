@@ -30,7 +30,7 @@ static struct memoryList *last = NULL;
 
 #define MEM_FREE 0
 #define MEM_USED 1
-#define DEBUG 1
+#define DEBUG 0
 
 struct memoryList * insertIntoList(struct memoryList *);
 void removeFromList(struct memoryList*);
@@ -141,7 +141,8 @@ void *mymalloc(size_t requested)
 	}
 	if (toUse == NULL)
 	{
-		printf("Couldn't find a suitable block! Requested size %d\n",requested);
+		if (DEBUG)
+			printf("Couldn't find a suitable block! Requested size %d\n",requested);
 		return NULL;
 	}
 	if (DEBUG)
