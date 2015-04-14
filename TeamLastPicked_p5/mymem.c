@@ -289,13 +289,12 @@ int mem_largest_free()
 		cur = head;
 		while (cur != NULL)
 		{
-			if (cur->alloc == MEM_USED) //if free
+			if (cur->alloc == MEM_FREE) //if free
 			{
 				if (cur->size > max)
 					max = cur->size;
 			}
-			else
-				cur = cur->next;
+			cur = cur->next;
 		}
 	}
 	else
@@ -316,9 +315,8 @@ int mem_small_free(int size)
 		cur = head;
 		while (cur != NULL)
 		{
-			if (cur->alloc == MEM_FREE && cur->size <= size) //if free and smaller or equal to block size
+			if ((cur->alloc == MEM_FREE) && (cur->size <= size)) //if free and smaller or equal to block size
 				count += cur->size;
-
 			cur = cur->next;
 		}
 	}
@@ -348,7 +346,7 @@ char mem_is_alloc(void *ptr)
 	{
 		printf("Called mem_is_alloc, but head is NULL!\n");
 	}
-	return '1'; //If not found, mark it as allocated (because we can't allocate it)
+	return MEM_USED; //If not found, mark it as allocated (because we can't allocate it)
 }
 
 /**
