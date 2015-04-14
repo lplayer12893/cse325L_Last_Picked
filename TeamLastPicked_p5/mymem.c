@@ -132,12 +132,21 @@ void *mymalloc(size_t requested)
 		case Best:
 		{
 			// Best Fit, smallest suitable block
-			int bestSize = mySize;
+			int bestSize = mySize+1;
 			while ((cur != NULL))
 			{
-				
+				if ((cur->alloc == MEM_FREE) && (cur->size >= requested))
+				{
+					// Possible block
+					if (cur->size < bestSize)
+					{
+						// Better block
+						toUse = cur;
+						bestSize = cur->size;
+					}
+				}
+				cur = cur->next;
 			}
-			
 			break;
 		}
 		case Worst:
