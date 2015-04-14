@@ -103,6 +103,7 @@ void *mymalloc(size_t requested)
 	switch (myStrategy)
 	{
 		case NotSet:
+			printf("ERROR: mymalloc called, but strategy not set. Returning NULL\n");
 			return NULL;
 		case First:
 			// First Fit, starting from beginning of list
