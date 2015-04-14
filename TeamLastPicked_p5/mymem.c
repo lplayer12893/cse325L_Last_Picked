@@ -130,20 +130,30 @@ void *mymalloc(size_t requested)
 			break;
 		}
 		case Best:
+		{
 			// Best Fit, smallest suitable block
-			// TODO: Sean
-			toUse = NULL;
+			int bestSize = mySize;
+			while ((cur != NULL))
+			{
+				
+			}
+			
 			break;
+		}
 		case Worst:
+		{
 			// Worst fit, largest suitable block
 			// TODO: Lucas
 			toUse = NULL;
 			break;
+		}
 		case Next:
+		{
 			// Next fit, start from the last allocated block. wraps around.
 			// TODO: Sean
 			toUse = NULL;
 			break;
+		}
 	}
 	if (toUse == NULL)
 	{
