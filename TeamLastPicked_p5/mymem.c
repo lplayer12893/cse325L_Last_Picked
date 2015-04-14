@@ -28,6 +28,9 @@ void *myMemory = NULL;
 static struct memoryList *head = NULL;
 static struct memoryList *last = NULL;
 
+#define MEM_FREE 0
+#define MEM_USED 1
+
 /* initmem must be called prior to mymalloc and myfree.
 
  initmem may be called more than once in a given execution;
@@ -78,7 +81,7 @@ void initmem(strategies strategy, size_t sz)
 	struct memoryList * new = insertIntoList(NULL);
 	new->ptr = myMemory;
 	new->size = sz;
-	new->alloc = 0;
+	new->alloc = MEM_FREE;
 }
 
 /* Allocate a block of memory with the requested size.
@@ -104,7 +107,7 @@ void *mymalloc(size_t requested)
 			struct memoryList * cur = head;
 			while (cur != NULL)
 			{
-				if ((cur->alloc == 0) && cur->size >= requested)
+				if ((cur->alloc == MEM_FREE) && cur->size >= requested)
 				{
 					// Found a block suitable.
 					if (cur->size < requested)
@@ -117,12 +120,12 @@ void *mymalloc(size_t requested)
 							return NULL;
 						}
 
-						leftover->alloc = 0; // Leftover memory is free
+						leftover->alloc = MEM_FREE; // Leftover memory is free
 						leftover->ptr = cur->ptr + requested; // ptr is the start of the leftover block
 						leftover->size = cur->size - requested; // size is the leftover size
 					}
 
-					cur->alloc = 1;
+					cur->alloc = MEM_USED;
 					cur->size = requested;
 					return cur->ptr;
 				}
@@ -155,16 +158,16 @@ void myfree(void *block)
 		{
 			if (cur->ptr == block) //if block is found
 			{
-				if (cur->alloc == 0)
+				if (cur->alloc == MEM_FREE)
 				{
 					printf("Warning: Called myfree with %p, but it was already marked as not allocated.\n", block);
 					return;
 				}
-				cur->alloc = 0;
+				cur->alloc = MEM_FREE;
 				// Check if previous block is free, if so we must coalesce.
 				if (cur->prev != NULL)
 				{
-					if (cur->prev->alloc == 0)
+					if (cur->prev->alloc == MEM_FREE)
 					{
 						// Previous block is free, so coalesce.
 						cur->prev->size += cur->size;
@@ -175,7 +178,7 @@ void myfree(void *block)
 				// Check if next block is free, if so we must coalesce.
 				if (cur->next != NULL)
 				{
-					if (cur->next->alloc == 0)
+					if (cur->next->alloc == MEM_FREE)
 					{
 						// Next block is free, so coalesce.
 						cur->size += cur->next->size;
@@ -216,7 +219,7 @@ int mem_holes()
 		cur = head;
 		while (cur != NULL)
 		{
-			if (cur->alloc == '0') //if free
+			if (cur->alloc == MEM_FREE) //if free
 				count++;
 
 			cur = cur->next;
@@ -239,9 +242,8 @@ int mem_allocated()
 		cur = head;
 		while (cur != NULL)
 		{
-			if (cur->alloc == '1') //if free
+			if (cur->alloc == MEM_USED) //if allocated
 				count += cur->size;
-
 			cur = cur->next;
 		}
 	}
@@ -262,9 +264,8 @@ int mem_free()
 		cur = head;
 		while (cur != NULL)
 		{
-			if (cur->alloc == '0') //if free
+			if (cur->alloc == MEM_FREE) //if free
 				count += cur->size;
-
 			cur = cur->next;
 		}
 	}
@@ -278,7 +279,6 @@ int mem_free()
 /* Number of bytes in the largest contiguous area of unallocated memory */
 int mem_largest_free()
 {
-	int count = 0;
 	int max = 0;
 	struct memoryList *cur = NULL;
 	if (head != NULL)
@@ -286,15 +286,10 @@ int mem_largest_free()
 		cur = head;
 		while (cur != NULL)
 		{
-			if (cur->alloc == '0') //if free
+			if (cur->alloc == MEM_USED) //if free
 			{
-				while (cur != NULL && cur->alloc == '0')
-				{
-					count += cur->size;
-					cur = cur->next;
-					if (count > max)
-						max = count;
-				}
+				if (cur->size > max)
+					max = cur->size;
 			}
 			else
 				cur = cur->next;
@@ -318,7 +313,7 @@ int mem_small_free(int size)
 		cur = head;
 		while (cur != NULL)
 		{
-			if (cur->alloc == '0' && cur->size <= size) //if free and smaller or equal to block size
+			if (cur->alloc == MEM_FREE && cur->size <= size) //if free and smaller or equal to block size
 				count += cur->size;
 
 			cur = cur->next;
