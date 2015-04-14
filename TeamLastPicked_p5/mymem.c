@@ -31,6 +31,9 @@ static struct memoryList *last = NULL;
 #define MEM_FREE 0
 #define MEM_USED 1
 
+struct memoryList * insertIntoList(struct memoryList *);
+void removeFromList(struct memoryList*);
+
 /* initmem must be called prior to mymalloc and myfree.
 
  initmem may be called more than once in a given execution;
