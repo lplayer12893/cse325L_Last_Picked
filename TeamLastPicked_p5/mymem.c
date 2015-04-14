@@ -75,19 +75,10 @@ void initmem(strategies strategy, size_t sz)
 	}
 
 	// Initialize our new management structure
-	head = (struct memoryList *) malloc(sizeof(struct memoryList));
-	if (head == NULL)
-	{
-		perror("CRITICAL: Couldn't malloc our first memoryList");
-		return;
-	}
-	last = head;
-
-	head->next = NULL;
-	head->prev = NULL;
-	head->ptr = myMemory;
-	head->size = sz;
-	head->alloc = 0;
+	struct memoryList * new = insertIntoList(NULL);
+	new->ptr = myMemory;
+	new->size = sz;
+	new->alloc = 0;
 }
 
 /* Allocate a block of memory with the requested size.
@@ -119,7 +110,7 @@ void *mymalloc(size_t requested)
 					if (cur->size < requested)
 					{
 						// There will be memory left over, so alloc a new block
-						struct memoryList * leftover = (struct memoryList *) malloc(sizeof(struct memoryList));
+						struct memoryList * leftover = insertIntoList(cur);
 						if (leftover == NULL)
 						{
 							perror("Couldn't malloc structure for leftover");
@@ -129,20 +120,14 @@ void *mymalloc(size_t requested)
 						leftover->alloc = 0; // Leftover memory is free
 						leftover->ptr = cur->ptr + requested; // ptr is the start of the leftover block
 						leftover->size = cur->size - requested; // size is the leftover size
-
-						// Insert it in the list
-						leftover->next = cur->next;
-						leftover->prev = cur;
-						if (cur->next == NULL)
-							last = leftover;
-						else
-							cur->next->prev = leftover;
-						cur->next = leftover;
 					}
 
 					cur->alloc = 1;
 					cur->size = requested;
+					return cur->ptr;
 				}
+				else
+					cur = cur->next;
 			}
 			return NULL;
 		}
@@ -175,6 +160,7 @@ void myfree(void *block)
 					printf("Warning: Called myfree with %p, but it was already marked as not allocated.\n", block);
 					return;
 				}
+				cur->alloc = 0;
 				// Check if previous block is free, if so we must coalesce.
 				if (cur->prev != NULL)
 				{
@@ -182,12 +168,18 @@ void myfree(void *block)
 					{
 						// Previous block is free, so coalesce.
 						cur->prev->size += cur->size;
-						if (cur->next == NULL)
-							last = cur->prev;
-						else
-							cur->next->prev = cur->prev;
-						cur->prev->next = cur->next;
-
+						cur = cur->prev;
+						removeFromList(cur->next);
+					}
+				}
+				// Check if next block is free, if so we must coalesce.
+				if (cur->next != NULL)
+				{
+					if (cur->next->alloc == 0)
+					{
+						// Next block is free, so coalesce.
+						cur->size += cur->next->size;
+						removeFromList(cur->next);
 					}
 				}
 				return;
