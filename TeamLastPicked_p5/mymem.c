@@ -359,12 +359,18 @@ char mem_is_alloc(void *ptr)
 }
 
 /**
- * Changes the pointers to add to the linked list.
+ * Changes the pointers to add to the linked list. This will malloc for you.
  * @param after the node to add after, NULL if you want it to be the first item
- * @param new the node to add
+ * @return the newly allocated memoryList, added to the right spot in the linked list.
  */
-void insertIntoList(struct memoryList * after, struct memoryList * new)
+struct memoryList * insertIntoList(struct memoryList * after)
 {
+	struct memoryList * new = (struct memoryList *) malloc(sizeof(struct memoryList));
+	if (new == NULL)
+	{
+		perror("ERROR: Couldn't malloc a new memoryList structure");
+		return NULL;
+	}
 	new->prev = after;
 	if (after == NULL)
 	{
@@ -389,9 +395,37 @@ void insertIntoList(struct memoryList * after, struct memoryList * new)
 		// Not last item
 		new->next->prev = new;
 	}
-
+	return new;
 }
 
+/**
+ * Removes an item from the list. This frees the structure for you.
+ * @param rem item to remove
+ */
+void removeFromList(struct memoryList * rem)
+{
+	if (rem->prev == NULL)
+	{
+		// First item
+		head = rem->next;
+	}
+	else
+	{
+		// Not first item
+		rem->prev->next = rem->next;
+	}
+	if (rem->next == NULL)
+	{
+		// Last Item
+		last = rem->prev;
+	}
+	else
+	{
+		// Not last
+		rem->next->prev = rem->prev;
+	}
+	free(rem);
+}
 /* 
  * Feel free to use these functions, but do not modify them.  
  * The test code uses them, but you may find them useful.
