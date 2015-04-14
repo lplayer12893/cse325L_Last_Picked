@@ -170,7 +170,26 @@ void myfree(void *block)
 		{
 			if (cur->ptr == block) //if block is found
 			{
-				cur->alloc = '0'; //NOTE: sets alloc to free whether or not it was allocated already
+				if (cur->alloc == 0)
+				{
+					printf("Warning: Called myfree with %p, but it was already marked as not allocated.\n", block);
+					return;
+				}
+				// Check if previous block is free, if so we must coalesce.
+				if (cur->prev != NULL)
+				{
+					if (cur->prev->alloc == 0)
+					{
+						// Previous block is free, so coalesce.
+						cur->prev->size += cur->size;
+						if (cur->next == NULL)
+							last = cur->prev;
+						else
+							cur->next->prev = cur->prev;
+						cur->prev->next = cur->next;
+
+					}
+				}
 				return;
 			}
 
@@ -337,6 +356,40 @@ char mem_is_alloc(void *ptr)
 		printf("Called mem_is_alloc, but head is NULL!\n");
 	}
 	return '1'; //If not found, mark it as allocated (because we can't allocate it)
+}
+
+/**
+ * Changes the pointers to add to the linked list.
+ * @param after the node to add after, NULL if you want it to be the first item
+ * @param new the node to add
+ */
+void insertIntoList(struct memoryList * after, struct memoryList * new)
+{
+	new->prev = after;
+	if (after == NULL)
+	{
+		// First item in list
+		new->next = head;
+		head = new;
+	}
+	else
+	{
+		// Not first item
+		new->next = after->next;
+		after->next = new;
+	}
+
+	if (new->next == NULL)
+	{
+		// Inserting last item
+		last = new;
+	}
+	else
+	{
+		// Not last item
+		new->next->prev = new;
+	}
+
 }
 
 /* 
