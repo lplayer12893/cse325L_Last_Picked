@@ -165,7 +165,7 @@ int mem_allocated()
 	}
 	else
 	{
-		/* TODO: error case if list head is NULL */
+		printf("Called mem_allocated, but head is NULL!\n");
 	}
 	return count;
 }
