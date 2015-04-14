@@ -27,6 +27,7 @@ void *myMemory = NULL;
 
 static struct memoryList *head = NULL;
 static struct memoryList *last = NULL;
+static struct memoryList *last_allocated = NULL;
 
 #define MEM_FREE 0
 #define MEM_USED 1
@@ -86,6 +87,7 @@ void initmem(strategies strategy, size_t sz)
 	new->ptr = myMemory;
 	new->size = sz;
 	new->alloc = MEM_FREE;
+	last_allocated = myMemory;
 	
 	if (DEBUG)
 		printf("initmem called, size %d, first ptr %p\n",sz,myMemory);
@@ -159,8 +161,29 @@ void *mymalloc(size_t requested)
 		case Next:
 		{
 			// Next fit, start from the last allocated block. wraps around.
-			// TODO: Sean
-			toUse = NULL;
+			cur = last_allocated;
+			while ((toUse == NULL))
+			{
+				cur = cur->next;
+				if (cur == NULL)
+				{
+					// Hit the end of the list, wrap around.
+					cur = head;
+				}
+				if ((cur->alloc == MEM_FREE) && (cur->size >= requested))
+				{
+					// Found a block suitable.
+					if (DEBUG)
+						printf("Found a suitable block, ptr %p, size %d\n",cur->ptr,cur->size);
+					toUse = cur;
+				}
+				if (cur == last_allocated)
+				{
+					// We wrapped around. 
+					toUse = NULL;
+					break;
+				}
+			}
 			break;
 		}
 	}
@@ -193,6 +216,7 @@ void *mymalloc(size_t requested)
 	}
 	toUse->alloc = MEM_USED;
 	toUse->size = requested;
+	last_allocated = toUse;
 	return toUse->ptr;
 }
 
@@ -247,6 +271,7 @@ void myfree(void *block)
 							printf("Coalesced block size is now %d\n",cur->size);
 					}
 				}
+				last_allocated = cur;
 				return;
 			}
 			else
