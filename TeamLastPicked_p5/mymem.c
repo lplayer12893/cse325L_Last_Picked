@@ -108,13 +108,14 @@ void myfree(void *block)
 
 			cur = cur->next;
 		}
-		/* TODO: error case if block is not found in memoryList */
+		printf("Called myfree with %p, but it was not found!\n",block);
+		return;
 	}
 	else
 	{
-		/* TODO: error case if list head is NULL */
+		printf("Called myfree, but our internal list HEAD is NULL!");
+		return;
 	}
-	return;
 }
 
 /****** Memory status/property functions ******
