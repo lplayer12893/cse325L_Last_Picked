@@ -25,8 +25,8 @@ strategies myStrategy = NotSet; // Current strategy
 size_t mySize;
 void *myMemory = NULL;
 
-static struct memoryList *head;
-static struct memoryList *last;
+static struct memoryList *head = NULL;
+static struct memoryList *last = NULL;
 
 /* initmem must be called prior to mymalloc and myfree.
 
@@ -52,16 +52,29 @@ void initmem(strategies strategy, size_t sz)
 	if (myMemory != NULL)
 		free(myMemory); /* in case this is not the first time initmem is called */
 
-	/* TODO: release any other memory you were using for bookkeeping when doing a re-initialization! */
+	if (head != NULL)
+	{
+		// Clear out our old management structure
+		struct memoryList * cur = head;
+		while (cur->next != NULL)
+		{
+			cur = cur->next;
+			free(cur->prev);
+		}
+		free(cur);
+		head = NULL;
+		last = NULL;
+	}
 
+	// Initialize our new memory block
 	myMemory = malloc(sz);
-
 	if (myMemory == NULL)
 	{
 		perror("CRITICAL: Couldn't malloc myMemory");
 		return;
 	}
 
+	// Initialize our new management structure
 	head = (struct memoryList *) malloc(sizeof(struct memoryList));
 	if (head == NULL)
 	{
