@@ -142,7 +142,7 @@ int mem_holes()
 	}
 	else
 	{
-		/* TODO: error case if list head is NULL */
+		printf("Called mem_holes, but head is NULL!\n");
 	}
 	return count;
 }
