@@ -26,7 +26,7 @@ size_t mySize;
 void *myMemory = NULL;
 
 static struct memoryList *head;
-static struct memoryList *next;
+static struct memoryList *last;
 
 /* initmem must be called prior to mymalloc and myfree.
 
@@ -50,14 +50,31 @@ void initmem(strategies strategy, size_t sz)
 	mySize = sz;
 
 	if (myMemory != NULL)
-		free(myMemory); /* in case this is not the first time initmem2 is called */
+		free(myMemory); /* in case this is not the first time initmem is called */
 
 	/* TODO: release any other memory you were using for bookkeeping when doing a re-initialization! */
 
 	myMemory = malloc(sz);
 
-	/* TODO: Initialize memory management structure. */
+	if (myMemory == NULL)
+	{
+		perror("CRITICAL: Couldn't malloc myMemory");
+		return;
+	}
 
+	head = (struct memoryList *) malloc(sizeof(struct memoryList));
+	if (head == NULL)
+	{
+		perror("CRITICAL: Couldn't malloc our first memoryList");
+		return;
+	}
+	last = head;
+
+	head->next = NULL;
+	head->prev = NULL;
+	head->ptr = myMemory;
+	head->size = sz;
+	head->alloc = 0;
 }
 
 /* Allocate a block of memory with the requested size.
@@ -107,7 +124,7 @@ void myfree(void *block)
 
 			cur = cur->next;
 		}
-		printf("Called myfree with %p, but it was not found!\n",block);
+		printf("Called myfree with %p, but it was not found!\n", block);
 		return;
 	}
 	else
@@ -261,7 +278,7 @@ char mem_is_alloc(void *ptr)
 
 			cur = cur->next;
 		}
-		printf("Called mem_is_alloc with %p, but it was not found!\n",ptr);
+		printf("Called mem_is_alloc with %p, but it was not found!\n", ptr);
 	}
 	else
 	{
