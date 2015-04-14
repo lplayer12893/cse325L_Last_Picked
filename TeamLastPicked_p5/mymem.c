@@ -109,6 +109,7 @@ void *mymalloc(size_t requested)
 			printf("ERROR: mymalloc called, but strategy not set. Returning NULL\n");
 			return NULL;
 		case First:
+		{
 			struct memoryList * cur = head;
 			while (cur != NULL)
 			{
@@ -144,6 +145,7 @@ void *mymalloc(size_t requested)
 				}
 			}
 			return NULL;
+		}
 		case Best:
 			// Best Fit, smallest suitable block
 			return NULL;
