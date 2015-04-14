@@ -99,14 +99,50 @@ void initmem(strategies strategy, size_t sz)
 void *mymalloc(size_t requested)
 {
 	assert((int ) myStrategy > 0);
-
+	if (head == NULL)
+	{
+		printf("ERROR: mymalloc called, but initMem was not called first.\n");
+	}
 	switch (myStrategy)
 	{
 		case NotSet:
 			printf("ERROR: mymalloc called, but strategy not set. Returning NULL\n");
 			return NULL;
 		case First:
-			// First Fit, starting from beginning of list
+			struct memoryList * cur = head;
+			while (cur != NULL)
+			{
+				if ((cur->alloc == 0) && cur->size >= requested)
+				{
+					// Found a block suitable.
+					if (cur->size < requested)
+					{
+						// There will be memory left over, so alloc a new block
+						struct memoryList * leftover = (struct memoryList *) malloc(sizeof(struct memoryList));
+						if (leftover == NULL)
+						{
+							perror("Couldn't malloc structure for leftover");
+							return NULL;
+						}
+
+						leftover->alloc = 0; // Leftover memory is free
+						leftover->ptr = cur->ptr + requested; // ptr is the start of the leftover block
+						leftover->size = cur->size - requested; // size is the leftover size
+
+						// Insert it in the list
+						leftover->next = cur->next;
+						leftover->prev = cur;
+						if (cur->next == NULL)
+							last = leftover;
+						else
+							cur->next->prev = leftover;
+						cur->next = leftover;
+					}
+
+					cur->alloc = 1;
+					cur->size = requested;
+				}
+			}
 			return NULL;
 		case Best:
 			// Best Fit, smallest suitable block
