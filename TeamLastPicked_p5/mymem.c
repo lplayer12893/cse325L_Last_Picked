@@ -154,8 +154,21 @@ void *mymalloc(size_t requested)
 		case Worst:
 		{
 			// Worst fit, largest suitable block
-			// TODO: Lucas
-			toUse = NULL;
+			int worstSize = mySize+1;
+			while ((cur != NULL))
+			{
+				if ((cur->alloc == MEM_FREE) && (cur->size >= requested))
+				{
+					// Possible block
+					if (cur->size > worstSize)
+					{
+						// Better block
+						toUse = cur;
+						worstSize = cur->size;
+					}
+				}
+				cur = cur->next;
+			}
 			break;
 		}
 		case Next:
