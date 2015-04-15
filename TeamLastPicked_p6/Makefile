@@ -4,10 +4,10 @@ CFLAGS=-Wall -Werror -g
 %.o: %.c %.h
 	${CC} ${CFLAGS} -c $<
 
-all: disk.o test 
+all: rbtree.o disk.o test 
 	@echo Build successful.
 
-test: testDisk.c disk.o
+test: testDisk.c disk.o rbtree.o
 	@echo Compiling Tests...
 	${CC} ${CFLAGS} -o testDisk testDisk.c disk.o
 	@echo Running Tests...
