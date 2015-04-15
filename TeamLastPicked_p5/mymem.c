@@ -154,7 +154,7 @@ void *mymalloc(size_t requested)
 		case Worst:
 		{
 			// Worst fit, largest suitable block
-			int worstSize = mySize+1;
+			int worstSize = 0;
 			while ((cur != NULL))
 			{
 				if ((cur->alloc == MEM_FREE) && (cur->size >= requested))
@@ -424,6 +424,7 @@ int mem_small_free(int size)
 	return count;
 }
 
+/* whether or not memory matching "ptr" is allocated */
 char mem_is_alloc(void *ptr)
 {
 	struct memoryList *cur = NULL;
