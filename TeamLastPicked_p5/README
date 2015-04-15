@@ -1,0 +1,29 @@
+Sean Salinas
+Lucas Stuyvesant
+Team Last Picked
+
+Project 5: My Malloc
+
+DESCRIPTION:
+
+This is the implementation "my malloc" memory allocation protocols, including
+first-fit, best-fit, worst-fit, and next-fit allocation.
+
+FILE LIST:
+
+mymem.c: includes the implementation of the memory allocation protocols, as well
+	as utility functions
+mymem.h: header file for mymem.c above
+testrunner.c: contains testing backbone for tests implemented in memorytests.c
+testruner.h: header file for testrunner.c above
+memorytests.c: contains testing implementation for the protocols outlined in mymem.c
+README: this file
+
+COMPILATION:
+    For compilation instructions, see the assignment description.
+
+INVOCATION:
+    For program invocation, see the assignment description.
+
+KNOWN BUGS:
+    No known bugs.
