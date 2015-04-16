@@ -63,3 +63,20 @@ void deleteElement(node * root, int id)
 {
 	
 }
+
+/**
+ * This gets the uncle node to the current node.
+ * @param n node to get uncle of
+ * @return n's uncle, NULL if it doesn't have one.
+ */
+node * getUncle(node * n)
+{
+	if (n->parent != NULL)
+	{
+		if (n->parent->left == n)
+			return n->parent->right;
+		else
+			return n->parent->left;
+	}
+	return NULL;
+}
