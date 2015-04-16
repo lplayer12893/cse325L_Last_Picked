@@ -1,4 +1,8 @@
 #include "disk.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+void error(char * str);
 
 int main(int argc, char ** argv)
 {
@@ -8,4 +12,14 @@ int main(int argc, char ** argv)
 	// First, let's test our red black tree
 	
 	return 0;
+}
+
+/**
+ * Prints an error and stops the makefile.
+ * @param str string describing the error.
+ */
+void error(char * str)
+{
+	fprintf(stderr,"\033[22;41;30mERROR:\033[0m %s\n",str);
+	exit(1);
 }
