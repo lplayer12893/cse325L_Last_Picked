@@ -32,7 +32,8 @@ void insertElement(node * root, void * payload, int id)
 	new->parent = NULL;
 	new->left = NULL;
 	new->right = NULL;
-	new->color = BLACK;
+	// New node is initially red
+	new->color = RED;
 	
 	// Find its spot in the tree.
 	node * parent = root;
