@@ -65,6 +65,21 @@ void deleteElement(node * root, int id)
 }
 
 /**
+ * Gets the grandparent of the node.
+ * @param n node to get grandparent of
+ * @return node's grandparent, NULL if its parent or grandparent doesn't exist
+ */
+node * getGrandparent(node * n)
+{
+	if (n->parent != NULL)
+	{
+		return n->parent->parent;
+	}
+	else
+		return NULL;
+}
+
+/**
  * This gets the uncle node to the current node.
  * @param n node to get uncle of
  * @return n's uncle, NULL if it doesn't have one.
