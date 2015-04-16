@@ -37,23 +37,42 @@ void insertElement(node * root, void * payload, int id)
 	
 	// Find its spot in the tree.
 	node * parent = root;
-	while(1)
+	if (parent == NULL)
 	{
-		if (id > parent->id)
-		{
-			if (parent->right == NULL)
-				break;
-			else
-				parent = parent->right;
-		}
-		else
-		{
-			if (parent->left == NULL)
-				break;
-			else
-				parent = parent->left;
-		}
+		// This is the first node. Color it black, and we're done.
+		new->color = BLACK;
 	}
+	else
+	{
+		// Not the first node. 
+		// Find its spot in the tree.
+		while(1)
+		{
+			if (id > parent->id)
+			{
+				if (parent->right == NULL)
+				{
+					parent->right = new;
+					break;
+				}
+				else
+					parent = parent->right;
+			}
+			else
+			{
+				if (parent->left == NULL)
+				{
+					parent->left = new;
+					break;
+				}
+				else
+					parent = parent->left;
+			}
+		}
+		// Found the right spot.
+		new->parent = parent;
+	}
+	
 	// At this point, we have to determine if we do any tree rotations.
 	
 	
