@@ -13,8 +13,8 @@ struct _node
 {
 	int id;
 	node * parent;
-	node *left;
-	node *right;
+	node * left;
+	node * right;
 	void * payload;
 };
 
