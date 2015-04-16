@@ -4,11 +4,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void * getElement(int id);
-void insertElement(void * payload, int id);
-void deleteElement(int id);
-
 typedef struct _node node;
+
+void * getElement(node * root, int id);
+void insertElement(node * root, void * payload, int id);
+void deleteElement(node * root, int id);
+
+#define RED 1
+#define BLACK 0
+
+
 struct _node
 {
 	int id;
@@ -16,6 +21,7 @@ struct _node
 	node * left;
 	node * right;
 	void * payload;
+	char color;
 };
 
 #endif // __RBTREE_H
