@@ -1,5 +1,4 @@
 #include "myfilesys.h"
-#include "disk.h"
 
 open_file open_files[32];
 fs_meta files[64];
@@ -16,7 +15,7 @@ int make_fs(char *disk_name)
 //	if (open_disk(disk_name) != 0)
 //		return -1;
 
-	// Mount it so we can write the metadata
+// Mount it so we can write the metadata
 	mount_fs(disk_name);
 
 	int i = 0;
@@ -46,16 +45,12 @@ int mount_fs(char *disk_name)
 		perror("Cannot mount fs! Malloc error");
 		return -1;
 	}
-
 	// Copy our structure from disk into memory
 	int i = 0;
-	while (i < (sizeof(fs_meta) * 64))
-	{
-		block_read((i % BLOCK_SIZE), buffer);
-		memcpy(files + i, buffer, BLOCK_SIZE);
-		i += BLOCK_SIZE;
-	}
-	// free(buffer);
+	block_read((i % BLOCK_SIZE), buffer);
+	memcpy(files, buffer, sizeof(fs_meta) * 64);
+
+	free(buffer);
 
 	for (i = 0; i < 32; i++)
 	{
@@ -76,15 +71,10 @@ int unmount_fs(char *disk_name)
 		return -1;
 	}
 
-
-	while (i < (sizeof(fs_meta) * 64))
-	{
-		// Copy our structure into the buffer
-		memcpy(files + i, buffer, BLOCK_SIZE);
-		// Write it to disk
-		block_write((i % BLOCK_SIZE), buffer);
-		i += BLOCK_SIZE;
-	}
+	// Copy our structure into the buffer
+	memcpy(buffer, files, sizeof(fs_meta) * 64);
+	// Write it to disk
+	block_write(0, buffer);
 	free(buffer);
 
 	// Close all open files.
@@ -92,6 +82,9 @@ int unmount_fs(char *disk_name)
 	{
 		open_files[i].file_num = -1;
 	}
+
+	// Remove all entries in the files table
+	memset(files, 0x0, sizeof(fs_meta) * 64);
 
 	// Close disk
 	if (close_disk(disk_name) != 0)
@@ -105,7 +98,7 @@ int fs_open(char *name)
 {
 	// First, find a file descriptor to use.
 	int filedesc = 0;
-	while (filedesc != 32)
+	while (filedesc <= 32)
 	{
 		if (open_files[filedesc].file_num == -1)
 			break;
@@ -203,7 +196,8 @@ int fs_create(char *name)
 	// This is a workable file.
 	fillBlockAndOffset(i);
 
-	files[i].size = 0;
+	files[i].size = -1;
+	memcpy(files[i].file_name, name, strlen(name));
 	return 0;
 }
 
@@ -229,7 +223,7 @@ int fs_delete(char *name)
 			// Delete the file
 			// First, open it, truncate, then close.
 			int des = fs_open(name);
-			fs_truncate(des,0);
+			fs_truncate(des, 0);
 			fs_close(des);
 			files[i].file_name[0] = 0x0;
 			return 0;
@@ -247,15 +241,16 @@ int fs_delete(char *name)
 int fs_read(int fildes, void *buf, size_t nbyte)
 {
 	int num_read = 0;
-	open_file filedes = open_files[fildes];
-	fs_meta actual_file = files[filedes.file_num];
+	open_file *filedes = &(open_files[fildes]);
+	fs_meta actual_file = files[filedes->file_num];
 
-	if (nbyte > actual_file.size + filedes.offset)
+	if (nbyte > actual_file.size + filedes->offset)
 	{
-		nbyte = actual_file.size - filedes.offset;
+		nbyte = actual_file.size - filedes->offset;
+		printf("nbyte read is bigger than file. setting to %d", nbyte);
 	}
 	int block = actual_file.block;
-	int pos = actual_file.offset + filedes.offset;
+	int pos = actual_file.offset + filedes->offset;
 
 	while (pos > BLOCK_SIZE)
 	{
@@ -279,9 +274,12 @@ int fs_read(int fildes, void *buf, size_t nbyte)
 			block++;
 			block_read(block, buffer);
 		}
+		printf("Copying byte %d from block %d position %d\n", num_read, block, pos);
 		memcpy(buf + num_read, buffer + pos, 1);
+		num_read++;
+		pos++;
 	}
-	filedes.offset += num_read;
+	filedes->offset += num_read;
 	free(buffer);
 	buffer = NULL;
 	return num_read;
@@ -290,10 +288,10 @@ int fs_read(int fildes, void *buf, size_t nbyte)
 /* Attempts to write nbyte bytes from a given file */
 int fs_write(int fildes, void *buf, size_t nbyte)
 {
-	open_file filedes = open_files[fildes];
-	fs_meta actual_file = files[filedes.file_num];
-	int pos = actual_file.offset + filedes.offset;
-	int block = actual_file.block;
+	open_file *filedes = &(open_files[fildes]);
+	fs_meta *actual_file = &(files[filedes->file_num]);
+	int pos = actual_file->offset + filedes->offset;
+	int block = actual_file->block;
 	int num_written = 0;
 	char * buffer = malloc(BLOCK_SIZE);
 	if (buffer == NULL)
@@ -301,39 +299,42 @@ int fs_write(int fildes, void *buf, size_t nbyte)
 		perror("Can't write (malloc step)");
 		return -1;
 	}
-	if (actual_file.size != -1)
+	if (actual_file->size != -1)
 	{
-		if (filedes.offset + nbyte > actual_file.size)
+		if (filedes->offset + nbyte > actual_file->size)
 		{
 			//TODO: handle dynamically expanding file size
 			// Too much writing, truncate and make new.
+			printf("LOL Dynamically expanding file");
+			return -1;
 		}
 	}
-	else
+	while (pos >= BLOCK_SIZE)
 	{
-		while(pos >= BLOCK_SIZE)
-		{
-			block++;
-			pos -= BLOCK_SIZE;
-		}
-		while (num_written < nbyte)
-		{
-			if (pos == BLOCK_SIZE)
-			{
-				pos = 0;
-				block_write(block, buffer);
-				block++;
-				block_read(block, buffer);
-			}
-			memcpy(buffer + pos, buf + num_written, 1);
-			num_written++;
-		}
-		filedes.offset += num_written;
-		free(buffer);
-		buffer = NULL;
-		return num_written;
-
+		block++;
+		pos -= BLOCK_SIZE;
 	}
+	while (num_written < nbyte)
+	{
+		if (pos == BLOCK_SIZE)
+		{
+			pos = 0;
+			block_write(block, buffer);
+			block++;
+			block_read(block, buffer);
+		}
+		printf("Writing byte %d to block %d position %d\n", num_written, block, pos);
+		memcpy(buffer + pos, buf + num_written, 1);
+		num_written++;
+		pos++;
+	}
+	filedes->offset += num_written;
+	block_write(block, buffer);
+	free(buffer);
+	buffer = NULL;
+	actual_file->size = num_written;
+	printf("actual_file: name: %s, size %d\n", actual_file->file_name, actual_file->size);
+	return num_written;
 
 	return -1;
 }
@@ -439,7 +440,7 @@ void fillBlockAndOffset(int i)
 {
 	if (i == 0)
 	{
-		files[i].block = 0;
+		files[i].block = DATA_START;
 		files[i].offset = 0;
 	}
 	else
@@ -456,3 +457,12 @@ void fillBlockAndOffset(int i)
 
 }
 
+fs_meta getFile(int i)
+{
+	return files[i];
+}
+
+open_file getFileDesc(int i)
+{
+	return open_files[i];
+}
