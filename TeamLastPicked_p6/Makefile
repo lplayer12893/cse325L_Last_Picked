@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Werror -g
+CFLAGS=-Wall -Werror -g -O0
 
 %.o: %.c %.h
 	${CC} ${CFLAGS} -c $<
@@ -18,4 +18,4 @@ test: testDisk.c disk.o myfilesys.o
 	@rm testDisk
 
 clean:
-	rm -f *.o disk
+	rm -f *.o test.fs testDisk
