@@ -120,7 +120,7 @@ int main(int argc, char ** argv)
 			error("fs_delete couldn't delete file %d", i);
 		}
 	}
-	printAllFiles();
+	// printAllFiles();
 	// Try to open too many files
 	for (i = 0; i < 40; i++)
 	{
@@ -173,9 +173,9 @@ int main(int argc, char ** argv)
 	success("remount file persistence");
 
 	// Write to the file
-	int num_written = fs_write(filedes, "abcd", 5);
-	if (num_written != 5)
-		error("Cannot write 4 bytes to file test1 (wrote %d bytes)", num_written);
+	int numwritten = fs_write(filedes, "abcd", 5);
+	if (numwritten != 5)
+		error("Cannot write 4 bytes to file test1 (wrote %d bytes)", numwritten);
 	file = getFile(0);
 	if (file.size != 5)
 		error("Size is wrong in meta info, %d but it should be 5", file.size);
@@ -243,9 +243,9 @@ int main(int argc, char ** argv)
 	// Overwrite the file
 	if (fs_lseek(filedes, 0) == -1)
 		error("Cannot fs_lseek 2nd time!");
-	num_written = fs_write(filedes, "efgh", 5);
-	if (num_written != 5)
-		error("Cannot overwrite file, num_written = %d, should be 5", num_written);
+	numwritten = fs_write(filedes, "efgh", 5);
+	if (numwritten != 5)
+		error("Cannot overwrite file, num_written = %d, should be 5", numwritten);
 	if (fs_lseek(filedes, 0) == -1)
 		error("Cannot fs_lseek 3rd time!");
 	if (fs_read(filedes, test, 5) != 5)
@@ -299,9 +299,9 @@ int main(int argc, char ** argv)
 	success("Opened 2nd file");
 
 	// Write to the file
-	num_written = fs_write(filedes2, "ABCDEFG", 8);
-	if (num_written != 8)
-		error("Cannot write 8 bytes to file test2 (wrote %d bytes)", num_written);
+	numwritten = fs_write(filedes2, "ABCDEFG", 8);
+	if (numwritten != 8)
+		error("Cannot write 8 bytes to file test2 (wrote %d bytes)", numwritten);
 	file = getFile(1);
 	if (file.size != 8)
 		error("Size is wrong, %d but it should be 8", file.size);
@@ -327,7 +327,7 @@ int main(int argc, char ** argv)
 
 	// Write to first file, make sure 2nd file doesn't change
 	fs_lseek(filedes, 0);
-	num_written = fs_write(filedes, "1234", 5);
+	numwritten = fs_write(filedes, "1234", 5);
 	fs_lseek(filedes2, 0);
 	numread = fs_read(filedes2, test2, 8);
 	if (numread != 8)
@@ -371,14 +371,38 @@ int main(int argc, char ** argv)
 	filedes = -1;
 	if (fs_delete("test1") != 0)
 		error("fs_delete won't delete test1");
-
+	fs_lseek(filedes2,0);
+	numread = fs_read(filedes2, test2, 10);
+	if (numread != 8)
+		error("after delete, 2nd file length is wrong. %d, should be 8", numread);
+	if (strcmp(test2, "ABCDEFG") != 0)
+		error("after delete, 2nd file contents are wrong. >%s<, should be >ABCDEFG<", test2);
 	success("fs_delete");
 
 	// One file larger than block bound
-
-	// Make another file
-
-	// Make one file in a block, second file cross block bound
+	test = realloc(test,26);
+	for (i=0;i<26;i++)
+		test[i] = i+0x41;
+	for (i=0;i<200;i++)
+	{
+		if (fs_write(filedes2,test,25) != 25)
+			error("couldn't write number %d (byte %d)",i,25*i);
+	}
+	if (fs_create("test1")!= 0)
+		error("Couldn't make 2nd file after large write");
+	filedes = fs_open("test1");
+	if (filedes == -1)
+		error("Couldn't open 2nd file after large write");
+	test[25] = 0x0;
+	if ((numwritten = fs_write(filedes,test,25)) != 25)
+		error("Couldn't write 2nd file after large write. Gave us %d",numwritten);
+	memset(test,0x0,25);
+	fs_lseek(filedes,0);
+	if ((numread = fs_read(filedes,test,25)) != 25)
+		error("Couldn't read 2nd file after large write. Gave us %d",numread);
+	if (strcmp(test,"ABCDEFGHIJKLMNOPQRSTUVWXY") != 0)
+		error("2nd file contents bad, >%s<, should be >ABCDEFGHIJKLMNOPQRSTUVWXY<",test);
+	success("fs_write_block_bound");
 
 	return 0;
 }

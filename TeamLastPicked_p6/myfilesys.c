@@ -387,7 +387,8 @@ int fs_write(int fildes, void *buf, size_t nbyte)
 	block_write(block, buffer);
 	free(buffer);
 	buffer = NULL;
-	actual_file->size = num_written;
+	if (actual_file->size < filedes->offset)
+		actual_file->size = filedes->offset;
 	// printf("actual_file: name: %s, size %d\n", actual_file->file_name, actual_file->size);
 	return num_written;
 
@@ -471,7 +472,7 @@ int fs_truncate(int fildes, off_t length)
 			startOffset -= BLOCK_SIZE;
 		}
 
-		shiftBlocks(startBlock, startOffset, length);
+		shiftBlocks(startBlock, startOffset, length-1);
 		files[open_files[fildes].file_num].size = length;
 		int i = fildes;
 		for (i = fildes; i < 63; i++)
@@ -517,7 +518,7 @@ void shiftBlocks(int startBlock, int startOffset, int numShift)
 	int block1 = startBlock;
 	int offset1 = startOffset;
 	int block2 = startBlock;
-	int offset2 = startOffset + numShift - 1;
+	int offset2 = startOffset + numShift;
 	char *buffer1 = NULL, *buffer2 = NULL;
 
 	buffer1 = malloc(BLOCK_SIZE);
