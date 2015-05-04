@@ -9,11 +9,12 @@ int main(int argc, char ** argv)
 	// This is where we add our own tests. Make will automatically run these. 
 	// To error out, just return any non-zero integer.
 	if (make_fs("test.fs") == -1)
-	{
 		error("Cannot make file system!");
-	}
+	if (mount_fs("test.fs") == -1)
+		error("Cannot mount file system!");
+	if (unmount_fs("test.fs") == -1)
+		error("Cannot unmount file system!");
 
-	
 	return 0;
 }
 
