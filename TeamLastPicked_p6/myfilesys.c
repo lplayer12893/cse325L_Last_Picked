@@ -320,7 +320,11 @@ int fs_truncate(int fildes, off_t length)
 			block_read(i + 1, block2);
 			memcpy(block1,block1+num_move,BLOCK_SIZE-num_move);
 			memcpy(block1+num_move,block2,num_move);
+			block_write(i,block1);
 		}
+		block_read(i,block1);
+		memcpy(block1,block1+num_move,BLOCK_SIZE-num_move);
+		block_write(i,block1);
 
 		while (i < 64)
 		{
