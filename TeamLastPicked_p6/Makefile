@@ -15,7 +15,6 @@ test: testDisk.c disk.o myfilesys.o
 	@echo -e "\033[0;32m/=====================================\ \033[0m"
 	@echo -e "\033[0;32m|========= All Tests Passed. =========|\033[0m"
 	@echo -e "\033[0;32m\=====================================/\033[0m"
-	@rm testDisk
 
 clean:
 	rm -f *.o test.fs testDisk
