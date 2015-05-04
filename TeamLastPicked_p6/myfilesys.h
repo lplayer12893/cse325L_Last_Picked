@@ -3,18 +3,15 @@
 
 typedef struct
 {
-	struct fs_meta *next; // Pointer to the next metadata
-	struct fs_meta *prev; // Pointer to the previous metadata
-	char *file_name; // String of file name, NULL if not in use
+	char file_name[16]; // String of file name, first character is 0x0 if not in use
 	int block; // which block we need
 	int offset; // the offset of the start of the file inside the block
-	int bytes_here; // Number of bytes in this bucket, never to exceed the block boundary
-	struct fs_meta * frag_next; // Pointer to the next metadata if fragmented, NULL if not fragmented.
+	int size; // Size of this file, in bytes. Will always be contiguous
 } fs_meta;
 
 typedef struct
 {
-	fs_meta file; // The file that is open
+	int file_num; // The file that is open, array offset
 	int offset; // The current offset.
 } open_file;
 
