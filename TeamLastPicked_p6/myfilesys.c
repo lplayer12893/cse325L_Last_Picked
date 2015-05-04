@@ -15,18 +15,7 @@ int make_fs(char *disk_name)
 	if (open_disk(disk_name) != 0)
 		return -1;
 
-	first = malloc(sizeof(fs_meta));
-	first->next = NULL;
-	first->prev = NULL;
-	first->file_name = NULL;
-	first->total_bytes = 0;
-	first->data = NULL;
-	first->bytes_here = 0;
-	first->frag_next = NULL;
-
-	//TODO: initialize/write necessary meta-information for mounting
 	return 0;
-	//TODO: Returns 0 on success and -1 on failure
 }
 
 /* mounts a file system stored on a virtual disk with name disk_name */
@@ -34,10 +23,22 @@ int mount_fs(char *disk_name)
 {
 	if (open_disk(disk_name) != 0)
 		return -1;
+	char * buffer = malloc(BLOCK_SIZE);
+	if (buffer == NULL)
+	{
+		perror("Cannot mount fs! Malloc error");
+		return -1;
+	}
 
-	//TODO: load the meta-info for file system operations below
+	int i=0;
+	while (i < (sizeof(fs_meta) * 64))
+	{
+		block_read(0,buffer);
+		memcpy(files,buffer,BLOCK_SIZE);
+		i += BLOCK_SIZE;
+	}
+
 	return 0;
-	//TODO: Returns 0 on success and -1 on failure
 }
 
 /* unmounts the file system from a virtual disk with name disk_name */
