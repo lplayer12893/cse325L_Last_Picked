@@ -7,7 +7,8 @@ Lab Project 6: File Systems
 
 DESCRIPTION:
 
-This is the implementation "my file system" utilizing a virtual disk on top of the Linux file system.
+This is the implementation "my file system" utilizing a virtual disk on top of 
+the Linux file system.
 
 FILE LIST:
 
@@ -16,13 +17,16 @@ myfilesys.h: header file for myfilesys.c above
 disk.c: contains methods for interacting with the virtual disk
 disk.h: header file for disk.c above
 makefile: compiles and invokes the program execution
+testDisk.c: contains a list of tests that run and check our filesystem for 
+proper operation.
 README: this file
 
 COMPILATION:
-    run make to compile via makefile
+    run make to compile via Makefile
 
 INVOCATION:
-    running make for compilation invokes the program execution
+    running make for compilation invokes the program execution. If all tests
+    pass, should write "all tests pass".  Otherwise, tells you what part fails.
 
 KNOWN BUGS:
-    Sometimes will segfault, but it never seems to in GDB.
+    no known bugs at this time.
