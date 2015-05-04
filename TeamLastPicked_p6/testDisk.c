@@ -307,7 +307,7 @@ int main(int argc, char ** argv)
 		error("Size is wrong, %d but it should be 8", file.size);
 	if (getFileDesc(filedes2).offset != 8)
 		error("Offset is wrong after write (%d, but it should be 8)", getFileDesc(filedes2).offset);
-	success("wrote to 2nd file");
+	success("wrote to 2nd file 1st time");
 
 	// Read from 2nd file
 	test2 = realloc(test2, 10);
@@ -323,7 +323,7 @@ int main(int argc, char ** argv)
 		error("Cannot read file 3rd time");
 	if (strcmp(test, "efgh") != 0)
 		error("File contents don't match after 2nd file written. (>%s<, should be >abcd<)", test);
-	success("wrote to 2nd file");
+	success("wrote to 2nd file 2nd time");
 
 	// Write to first file, make sure 2nd file doesn't change
 	fs_lseek(filedes, 0);
@@ -358,6 +358,7 @@ int main(int argc, char ** argv)
 	numread = fs_read(filedes2, test2, 10);
 	if (numread != 8)
 		error("after truncate, 2nd file length is wrong. %d, should be 8", numread);
+	printf("test2: >%s<\n",test2);
 	if (strcmp(test2, "ABCDEFG") != 0)
 		error("after truncate, 2nd file contents are wrong. >%s<, should be >ABCDEFG<", test2);
 	success("fs_truncate");

@@ -318,12 +318,12 @@ int fs_read(int fildes, void *buf, size_t nbyte)
 		if (pos == BLOCK_SIZE)
 		{
 			pos = 0;
-			block_write(block, buffer);
+			// block_write(block, buffer);
 			block++;
 			block_read(block, buffer);
 		}
-		printf("Copying byte %d from block %d position %d (%02x)\n", num_read, block, pos,*((char *)(buf+num_read)));
 		memcpy(buf + num_read, buffer + pos, 1);
+		printf("Copying into buf[%d] from block %d position %d (byte copied is 0x%02x, '%c')\n", num_read, block, pos,*((char *)(buf+num_read)),((char*)(buf+num_read))[0]);
 		num_read++;
 		pos++;
 	}
@@ -378,7 +378,7 @@ int fs_write(int fildes, void *buf, size_t nbyte)
 			block++;
 			block_read(block, buffer);
 		}
-		printf("Writing byte %d to block %d position %d (%02x)\n", num_written, block, pos,*(char*)(buffer+pos));
+		printf("Writing byte %d to block %d position %d (%02x)\n", num_written, block, pos,*(char*)(buf+num_written));
 		memcpy(buffer + pos, buf + num_written, 1);
 		num_written++;
 		pos++;
@@ -496,7 +496,7 @@ void shiftBlocks(int startBlock, int startOffset, int numShift)
 	int block1 = startBlock;
 	int offset1 = startOffset;
 	int block2 = startBlock;
-	int offset2 = startOffset + numShift;
+	int offset2 = startOffset + numShift-1;
 	char *buffer1 = NULL, *buffer2 = NULL;
 
 	buffer1 = malloc(BLOCK_SIZE);
