@@ -30,13 +30,14 @@ int mount_fs(char *disk_name)
 		return -1;
 	}
 
-	int i=0;
+	int i = 0;
 	while (i < (sizeof(fs_meta) * 64))
 	{
-		block_read(0,buffer);
-		memcpy(files,buffer,BLOCK_SIZE);
+		block_read((i % BLOCK_SIZE), buffer);
+		memcpy(files + i, buffer, BLOCK_SIZE);
 		i += BLOCK_SIZE;
 	}
+	free(buffer);
 
 	return 0;
 }
@@ -44,12 +45,25 @@ int mount_fs(char *disk_name)
 /* unmounts the file system from a virtual disk with name disk_name */
 int unmount_fs(char *disk_name)
 {
-	//TODO: write back all meta-info with changes
+	int i = 0;
+	char * buffer = malloc(BLOCK_SIZE);
+	if (buffer == NULL)
+	{
+		perror("Cannot unmount fs! Malloc error");
+		return -1;
+	}
+
+	while (i < (sizeof(fs_meta) * 64))
+	{
+		memcpy(files + i, buffer, BLOCK_SIZE);
+		block_write((i % BLOCK_SIZE), buffer);
+		i += BLOCK_SIZE;
+	}
+	free(buffer);
 
 	if (close_disk(disk_name) != 0)
 		return -1;
 
-	//TODO: Returns 0 on success and -1 on failure
 	return 0;
 }
 
