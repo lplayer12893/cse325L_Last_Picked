@@ -19,6 +19,7 @@ typedef struct
 } open_file;
 
 /********************************************************************************************************/
+char * toString(fs_meta *);
 int make_fs(char *disk_name); /* create an empty file system on the virtual disk with name disk_name  */
 int mount_fs(char *disk_name); /* mounts a file system stored on a virtual disk with name disk_name    */
 int unmount_fs(char *disk_name); /* unmounts the file system from a virtual disk with name disk_name */
