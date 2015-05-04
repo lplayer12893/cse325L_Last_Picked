@@ -284,8 +284,8 @@ int fs_truncate(int fildes, off_t length)
 			// Reset the block sizes
 			fillBlockAndOffset(i);
 		}
+		return 0;
 	}
-	//TODO: Returns 0 on success and -1 on failure
 }
 
 /**
