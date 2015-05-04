@@ -15,6 +15,19 @@ int make_fs(char *disk_name)
 	if (open_disk(disk_name) != 0)
 		return -1;
 
+	mount_fs(disk_name);
+
+	int i = 0;
+	for (i = 0; i < 64; i++)
+	{
+		files[i].file_name[0] = 0x0;
+		files[i].block = 0;
+		files[i].offset = 0;
+		files[i].size = -1;
+	}
+
+	unmount_fs(disk_name);
+
 	return 0;
 }
 
@@ -39,6 +52,11 @@ int mount_fs(char *disk_name)
 	}
 	free(buffer);
 
+	for (i = 0; i < 32; i++)
+	{
+		open_files[i].file_num = -1;
+	}
+
 	return 0;
 }
 
@@ -61,6 +79,11 @@ int unmount_fs(char *disk_name)
 	}
 	free(buffer);
 
+	for (i = 0; i < 32; i++)
+	{
+		open_files[i].file_num = -1;
+	}
+
 	if (close_disk(disk_name) != 0)
 		return -1;
 
@@ -74,7 +97,7 @@ int fs_open(char *name)
 	int filedesc = 0;
 	while (filedesc != 32)
 	{
-		if (open_files[filedesc] == NULL)
+		if (open_files[filedesc].file_num == -1)
 			break;
 		else
 			filedesc++;
@@ -88,7 +111,7 @@ int fs_open(char *name)
 	int filenum = 0;
 	while (filenum < 64)
 	{
-		if (strcmp(files[filenum], name) == 0)
+		if (strcmp(files[filenum].file_name, name) == 0)
 		{
 			// Found the file
 			break;
@@ -104,14 +127,9 @@ int fs_open(char *name)
 		printf("Can't find file %s!\n", name);
 		return -1;
 	}
-	open_files[filedesc] = malloc(sizeof(open_file));
-	if (open_files[filedesc] == NULL)
-	{
-		perror("Can't open file (malloc step)");
-		return -1;
-	}
-	open_files[filedesc]->file_num = filenum;
-	open_files[filedesc]->offset = 0;
+
+	open_files[filedesc].file_num = filenum;
+	open_files[filedesc].offset = 0;
 
 	return filedesc;
 }
@@ -119,15 +137,14 @@ int fs_open(char *name)
 /* closes the file with the corresponding file descriptor fildes */
 int fs_close(int fildes)
 {
-	if (open_files[fildes] == NULL)
+	if (open_files[fildes].file_num == -1)
 	{
 		printf("Can't close file %d because it isn't open!\n", fildes);
 		return -1;
 	}
 	else
 	{
-		free(open_files[fildes]);
-		open_files[fildes] = NULL;
+		open_files[fildes].file_num = -1;
 		return 0;
 	}
 }
@@ -144,7 +161,7 @@ int fs_create(char *name)
 	int i = 0;
 	for (i = 0; i < 32; i++)
 	{
-		if (strcmp(files[i]->file_name, name) == 0)
+		if (strcmp(files[i].file_name, name) == 0)
 		{
 			printf("File exists.\n");
 			return -1;
@@ -154,7 +171,7 @@ int fs_create(char *name)
 	i = 0;
 	while (i < 64)
 	{
-		if (files[i] == NULL)
+		if (files[i].size == -1)
 		{
 			break;
 		}
@@ -170,10 +187,9 @@ int fs_create(char *name)
 		return -1;
 	}
 	// This is a workable file.
-	int block, offset;
 	fillBlockAndOffset(i);
 
-	files[i]->size = 0;
+	files[i].size = 0;
 	return 0;
 }
 
@@ -183,19 +199,20 @@ int fs_delete(char *name)
 	int i = 0;
 	while (i < 64)
 	{
-		if (strcmp(files[i]->file_name, name) == 0)
+		if (strcmp(files[i].file_name, name) == 0)
 		{
 			// Found the file
 			// Make sure it isn't open.
-			for (int j = 0; j < 32; j++)
+			int j = 0;
+			for (j = 0; j < 32; j++)
 			{
-				if (open_files[j]->file_num == i)
+				if (open_files[j].file_num == i)
 				{
 					printf("Cannot delete file: it is open in file descriptor %d!\n", j);
 					return -1;
 				}
 			}
-			files[i]->file_name = 0x0;
+			files[i].file_name[0] = 0x0;
 			return 0;
 		}
 		else
@@ -230,33 +247,33 @@ int fs_write(int fildes, void *buf, size_t nbyte)
 int fs_get_filesize(int fildes)
 {
 	//TODO: returns file size on success, -1 on failure
-	if (open_files[fildes] == NULL)
+	if (open_files[fildes].file_num == -1)
 	{
 		printf("Cannot get file size! It hasn't been open.\n");
 		return -1;
 	}
 	else
-		return files[open_files[fildes]->file_num]->size;
+		return files[open_files[fildes].file_num].size;
 }
 
 /* sets the file pointer to the argument offset */
 int fs_lseek(int fildes, off_t offset)
 {
-	if (open_files[fildes] == NULL)
+	if (open_files[fildes].file_num == -1)
 	{
 		printf("Tried to seek on file, but it wasn't open!");
 		return -1;
 	}
 	else
 	{
-		if (offset > files[open_files[fildes]->file_num]->size)
+		if (offset > files[open_files[fildes].file_num].size)
 		{
 			printf("Tried to seek past end of file!");
 			return -1;
 		}
 		else
 		{
-			open_files[fildes]->offset = offset;
+			open_files[fildes].offset = offset;
 			return 0;
 		}
 	}
@@ -265,20 +282,20 @@ int fs_lseek(int fildes, off_t offset)
 /* truncates a given file to length bytes in size */
 int fs_truncate(int fildes, off_t length)
 {
-	if (open_files[fildes] == NULL)
+	if (open_files[fildes].file_num == -1)
 	{
 		printf("Cannot truncate a file that isn't open.\n");
 		return -1;
 	}
-	if (files[open_files[fildes]->file_num]->size < length)
+	if (files[open_files[fildes].file_num].size < length)
 	{
-		printf("Cannot truncate a file to make it bigger! Old size: %d, requested size: %d\n",files[open_files[fildes]->file_num]->size,length);
+		printf("Cannot truncate a file to make it bigger! Old size: %d, requested size: %d\n", files[open_files[fildes].file_num].size, (int)length);
 		return -1;
 	}
 	else
 	{
-		files[open_files[fildes]->file_num]->size = length;
-		int i = open_files[fildes]->file_num + 1;
+		files[open_files[fildes].file_num].size = length;
+		int i = open_files[fildes].file_num + 1;
 		while (i < 64)
 		{
 			// Reset the block sizes
@@ -295,18 +312,18 @@ void fillBlockAndOffset(int i)
 {
 	if (i == 0)
 	{
-		files[i]->block = 0;
-		files[i]->offset = 0;
+		files[i].block = 0;
+		files[i].offset = 0;
 	}
 	else
 	{
-		files[i]->block = files[i - 1]->block;
-		files[i]->offset = files[i - 1]->offset;
-		files[i]->offset += files[i - 1]->size;
-		while (files[i]->offset > BLOCK_SIZE)
+		files[i].block = files[i - 1].block;
+		files[i].offset = files[i - 1].offset;
+		files[i].offset += files[i - 1].size;
+		while (files[i].offset > BLOCK_SIZE)
 		{
-			files[i]->offset -= BLOCK_SIZE;
-			files[i]->block++;
+			files[i].offset -= BLOCK_SIZE;
+			files[i].block++;
 		}
 	}
 

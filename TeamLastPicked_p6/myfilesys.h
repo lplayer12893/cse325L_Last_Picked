@@ -1,6 +1,9 @@
 #ifndef _MYFILESYS_H_
 #define _MYFILESYS_H_
 
+#include <stdlib.h>
+#include <stdio.h>
+
 typedef struct
 {
 	char file_name[16]; // String of file name, first character is 0x0 if not in use
