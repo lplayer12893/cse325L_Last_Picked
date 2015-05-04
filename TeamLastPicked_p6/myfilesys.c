@@ -223,7 +223,7 @@ int fs_create(char *name)
 
 	files[i].size = 0;
 	files[i + 1].size = -1;
-	memcpy(files[i].file_name, name, strlen(name)+1);
+	memcpy(files[i].file_name, name, strlen(name) + 1);
 	return 0;
 }
 
@@ -261,10 +261,10 @@ int fs_delete(char *name)
 			for (j = i; j < 63; j++)
 			{
 				// printf("Copying entry %d to %d\n", j + 1, j);
-				files[j].block = files[j+1].block;
-				memcpy(files[j].file_name,files[j+1].file_name,16);
-				files[j].offset = files[j+1].offset;
-				files[j].size = files[j+1].size;
+				files[j].block = files[j + 1].block;
+				memcpy(files[j].file_name, files[j + 1].file_name, 16);
+				files[j].offset = files[j + 1].offset;
+				files[j].size = files[j + 1].size;
 			}
 			files[63].file_name[0] = 0x0;
 			files[63].size = -1;
@@ -322,7 +322,7 @@ int fs_read(int fildes, void *buf, size_t nbyte)
 			block++;
 			block_read(block, buffer);
 		}
-		printf("Copying byte %d from block %d position %d\n", num_read, block, pos);
+		printf("Copying byte %d from block %d position %d (%02x)\n", num_read, block, pos,*((char *)(buf+num_read)));
 		memcpy(buf + num_read, buffer + pos, 1);
 		num_read++;
 		pos++;
@@ -378,7 +378,7 @@ int fs_write(int fildes, void *buf, size_t nbyte)
 			block++;
 			block_read(block, buffer);
 		}
-		printf("Writing byte %d to block %d position %d\n", num_written, block, pos);
+		printf("Writing byte %d to block %d position %d (%02x)\n", num_written, block, pos,*(char*)(buffer+pos));
 		memcpy(buffer + pos, buf + num_written, 1);
 		num_written++;
 		pos++;
@@ -437,53 +437,26 @@ int fs_truncate(int fildes, off_t length)
 	}
 	if (files[open_files[fildes].file_num].size < length)
 	{
-		if (files[open_files[fildes].file_num].size == -1)
-			return 0;
 		printf("Cannot truncate a file to make it bigger! Old size: %d, requested size: %d\n", files[open_files[fildes].file_num].size, (int) length);
 		return -1;
 	}
 	else
 	{
-		char * block1 = malloc(BLOCK_SIZE);
-		char * block2 = malloc(BLOCK_SIZE);
-		if ((block1 == NULL) || (block2 == NULL))
+		int startBlock = files[open_files[fildes].file_num].block;
+		int startOffset = files[open_files[fildes].file_num].offset+length;
+		while (startOffset > BLOCK_SIZE)
 		{
-			perror("Cannot truncate on malloc step");
-			return -1;
+			startBlock++;
+			startOffset -= BLOCK_SIZE;
 		}
-		fs_meta file = files[open_files[fildes].file_num];
 
-		int i = open_files[fildes].file_num + 1;
-
-		// Move the actual data
-		int num_move = file.size - length;
-		block_read(file.block, block1);
-		memcpy(block1 + file.offset + length, block1 + file.offset + file.size, BLOCK_SIZE - (file.offset + file.size));
-		memcpy(block1 + (BLOCK_SIZE - num_move), block2, num_move);
-		block_write(file.block, block1);
-		while (i < DISK_BLOCKS - 1)
-		{
-			block_read(i, block1);
-			block_read(i + 1, block2);
-			memcpy(block1, block1 + num_move, BLOCK_SIZE - num_move);
-			memcpy(block1 + num_move, block2, num_move);
-			block_write(i, block1);
-		}
-		block_read(i, block1);
-		memcpy(block1, block1 + num_move, BLOCK_SIZE - num_move);
-		block_write(i, block1);
-
-		file.size = length;
-		while (i < 64)
-		{
-			// Reset the block sizes
-			if (files[i].size != -1)
-			{
-				fillBlockAndOffset(i);
-			}
-			else
-				break;
-		}
+		shiftBlocks(startBlock, startOffset, length);
+		files[open_files[fildes].file_num].size = length;
+		int i=fildes;
+		for (i=fildes;i<63;i++)
+			fillBlockAndOffset(i);
+		if (open_files[fildes].offset > length)
+			open_files[fildes].offset = length;
 		return 0;
 	}
 }
@@ -502,8 +475,8 @@ void fillBlockAndOffset(int i)
 	{
 		files[i].block = files[i - 1].block;
 		files[i].offset = files[i - 1].offset;
-		if (files[i-1].size == -1)
-			files[i].offset = files[i-1].offset;
+		if (files[i - 1].size == -1)
+			files[i].offset = files[i - 1].offset;
 		else
 			files[i].offset += files[i - 1].size;
 		while (files[i].offset > BLOCK_SIZE)
@@ -517,6 +490,7 @@ void fillBlockAndOffset(int i)
 
 void shiftBlocks(int startBlock, int startOffset, int numShift)
 {
+	// printf("shiftBlocks called with %d,%d,%d\n",startBlock,startOffset,numShift);
 	if (numShift == 0)
 		return;
 	int block1 = startBlock;
@@ -540,6 +514,7 @@ void shiftBlocks(int startBlock, int startOffset, int numShift)
 		offset2 -= BLOCK_SIZE;
 	}
 
+	// printf("reading blocks %d and %d\n",block1,block2);
 	block_read(block1, buffer1);
 	block_read(block2, buffer2);
 	int num_copy = 0;
@@ -554,6 +529,7 @@ void shiftBlocks(int startBlock, int startOffset, int numShift)
 		{
 			num_copy = BLOCK_SIZE - offset2;
 		}
+		// printf("copying %d bytes: %d.%d -> %d.%d\n",num_copy,block2,offset2,block1,offset1);
 		// Copy the memory
 		memcpy(buffer1 + offset1, buffer2 + offset2, num_copy);
 
@@ -573,7 +549,8 @@ void shiftBlocks(int startBlock, int startOffset, int numShift)
 			block_write(block2, buffer2);
 			block2++;
 			offset2 = 0;
-			block_read(block2, buffer2);
+			if (block2 < DISK_BLOCKS)
+				block_read(block2, buffer2);
 		}
 	}
 	// We reached the end, so zero out what's left.
@@ -600,11 +577,25 @@ open_file getFileDesc(int i)
 
 void printAllFiles()
 {
-	int i = 0;
+	int i = 0, j = 0;
+	int empties = 0;
 	for (i = 0; i < 64; i++)
 	{
-		printf("File %d: %s\n", i, files[i].file_name);
-		printf("\tBlock %d, Offset %d\n", files[i].block, files[i].offset);
-		printf("\tSize: %d\n", files[i].size);
+		if ((files[i].file_name[0] == 0x0) && (files[i].size == -1))
+		{
+			// Empty file
+			empties++;
+		}
+		else
+		{
+			printf("File %d: %s (", i, files[i].file_name);
+			for (j = 0; j < 16; j++)
+				printf("%02x ", files[i].file_name[j]);
+			printf(")\n");
+			printf("\tBlock %d, Offset %d\n", files[i].block, files[i].offset);
+			printf("\tSize: %d\n", files[i].size);
+		}
+
 	}
+	printf("%d empty files.\n", empties);
 }

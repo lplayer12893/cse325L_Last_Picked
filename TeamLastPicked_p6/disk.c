@@ -107,7 +107,7 @@ int block_read(int block, char *buf)
   }
 
   if ((block < 0) || (block >= DISK_BLOCKS)) {
-    fprintf(stderr, "block_read: block index out of bounds\n");
+    fprintf(stderr, "block_read: block index out of bounds (%d)\n",block);
     return -1;
   }
 

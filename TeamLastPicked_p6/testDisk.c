@@ -83,7 +83,7 @@ int main(int argc, char ** argv)
 	success("fs_close");
 
 	// Try to create a file with name too big
-	if(fs_create("1234567890123456") != -1)
+	if (fs_create("1234567890123456") != -1)
 		error("Cannot create file with 15 character filename");
 	success("Too Long of file name");
 
@@ -94,14 +94,14 @@ int main(int argc, char ** argv)
 
 	// Try and create too many files
 	char * fname = malloc(7);
-	for (i=0;i<70;i++)
+	for (i = 0; i < 70; i++)
 	{
 
-		sprintf(fname,"file%d",i);
+		sprintf(fname, "file%d", i);
 		if (fs_create(fname) == -1)
 		{
 			if (i < 63)
-				error("fs_create couldn't make file %d",i);
+				error("fs_create couldn't make file %d", i);
 		}
 		else
 		{
@@ -112,12 +112,12 @@ int main(int argc, char ** argv)
 	success("File count");
 
 	// Delete all the files we made
-	for (i=0;i<63;i++)
+	for (i = 0; i < 63; i++)
 	{
-		sprintf(fname,"file%d",i);
+		sprintf(fname, "file%d", i);
 		if (fs_delete(fname) == -1)
 		{
-			error("fs_delete couldn't delete file %d",i);
+			error("fs_delete couldn't delete file %d", i);
 		}
 	}
 	printAllFiles();
@@ -310,7 +310,7 @@ int main(int argc, char ** argv)
 	success("wrote to 2nd file");
 
 	// Read from 2nd file
-	test2 = realloc(test2, 8);
+	test2 = realloc(test2, 10);
 	fs_lseek(filedes2, 0);
 	numread = fs_read(filedes2, test2, 8);
 	if (numread != 8)
@@ -337,7 +337,30 @@ int main(int argc, char ** argv)
 	success("write to 1st file in bounds doesn't affect 2nd");
 
 	// Truncate File
-
+	fs_lseek(filedes, 5);
+	fs_lseek(filedes2, 5);
+	if (fs_truncate(filedes, 3) != 0)
+		error("Couldn't truncate file1 to size 3");
+	if (getFileDesc(filedes).offset != 3)
+		error("Truncate didn't move file pointer to EOF.");
+	if (getFileDesc(filedes2).offset != 5)
+		error("Truncate moved 2nd file pointer to %d (should be 5)", getFileDesc(filedes2).offset);
+	if (fs_lseek(filedes, 0) != 0)
+		error("Cannot lseek 1st file after truncate");
+	if (fs_lseek(filedes2, 0) != 0)
+		error("Cannot lseek 2nd file after truncate");
+	numread = fs_read(filedes, test, 10);
+	if (numread != 3)
+		error("fs_read read %d bytes, but should be 3 since we truncated", numread);
+	test[numread] = 0x0;
+	if (strcmp(test, "123") != 0)
+		error("after truncate, first file contents are wrong. >%s<, should be >123<", test);
+	numread = fs_read(filedes2, test2, 10);
+	if (numread != 8)
+		error("after truncate, 2nd file length is wrong. %d, should be 8", numread);
+	if (strcmp(test2, "ABCDEFG") != 0)
+		error("after truncate, 2nd file contents are wrong. >%s<, should be >ABCDEFG<", test2);
+	success("fs_truncate");
 	// Delete File
 
 	// One file larger than block bound
@@ -361,6 +384,7 @@ void error(char * str, ...)
 	vfprintf(stderr, str, arglist);
 	va_end(arglist);
 	fprintf(stderr, "\n");
+	printAllFiles();
 	exit(1);
 }
 
