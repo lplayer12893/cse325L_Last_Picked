@@ -230,14 +230,36 @@ int fs_write(int fildes, void *buf, size_t nbyte)
 int fs_get_filesize(int fildes)
 {
 	//TODO: returns file size on success, -1 on failure
+	if (open_files[fildes] == NULL)
+	{
+		printf("Cannot get file size! It hasn't been open.\n");
+		return -1;
+	}
+	else
+		return files[open_files[fildes]->file_num]->size;
 }
 
 /* sets the file pointer to the argument offset */
 int fs_lseek(int fildes, off_t offset)
 {
-	//TODO: set the file pointer to the given offset
-	//TODO: implement error catch if set beyond eof
-	//TODO: Returns 0 on success and -1 on failure
+	if (open_files[fildes] == NULL)
+	{
+		printf("Tried to seek on file, but it wasn't open!");
+		return -1;
+	}
+	else
+	{
+		if (offset > files[open_files[fildes]->file_num]->size)
+		{
+			printf("Tried to seek past end of file!");
+			return -1;
+		}
+		else
+		{
+			open_files[fildes]->offset = offset;
+			return 0;
+		}
+	}
 }
 
 /* truncates a given file to length bytes in size */
