@@ -1,6 +1,7 @@
 #ifndef _MYFILESYS_H_
 #define _MYFILESYS_H_
 
+#include "disk.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -37,5 +38,8 @@ int fs_get_filesize(int fildes); /* returns the current size of a given file    
 int fs_lseek(int fildes, off_t offset); /* sets the file pointer to the argument offset                 */
 int fs_truncate(int fildes, off_t length); /* truncates a given file to length bytes in size           */
 /********************************************************************************************************/
+
+fs_meta getFile(int i);
+open_file getFileDesc(int i);
 
 #endif
