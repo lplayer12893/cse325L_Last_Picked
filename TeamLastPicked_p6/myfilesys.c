@@ -249,37 +249,79 @@ int fs_read(int fildes, void *buf, size_t nbyte)
 		perror("Cannot read (malloc step)");
 		return -1;
 	}
-	block_read(block,buffer);
+	block_read(block, buffer);
 
 	while (num_read < nbyte)
 	{
 		if (pos == BLOCK_SIZE)
 		{
 			pos = 0;
+			block_write(block, buffer);
 			block++;
-			block_read(block,buffer);
+			block_read(block, buffer);
 		}
-		memcpy(buf + num_read,buffer+pos,1);
+		memcpy(buf + num_read, buffer + pos, 1);
 	}
 	filedes.offset += num_read;
+	free(buffer);
+	buffer = NULL;
 	return num_read;
 }
 
 /* Attempts to write nbyte bytes from a given file */
 int fs_write(int fildes, void *buf, size_t nbyte)
 {
-	//TODO: write nbyte bytes of data to the referenced file from buf. buf size > nbytes assumed
-	//TODO: handle dynamically expanding file size
-	//TODO: if not enough disk space, write as much as possible
-	//TODO: implicitly increment the file pointer by bytes written
-	//TODO: Returns number of bytes written on success, -1 on failure. 0 on full disk
+	open_file filedes = open_files[fildes];
+	fs_meta actual_file = files[filedes.file_num];
+	int pos = actual_file.offset + filedes.offset;
+	int block = actual_file.block;
+	int num_written = 0;
+	char * buffer = malloc(BLOCK_SIZE);
+	if (buffer == NULL)
+	{
+		perror("Can't write (malloc step)");
+		return -1;
+	}
+	if (actual_file.size != -1)
+	{
+		if (filedes.offset + nbyte > actual_file.size)
+		{
+			//TODO: handle dynamically expanding file size
+			// Too much writing, truncate and make new.
+		}
+	}
+	else
+	{
+		while(pos >= BLOCK_SIZE)
+		{
+			block++;
+			pos -= BLOCK_SIZE;
+		}
+		while (num_written < nbyte)
+		{
+			if (pos == BLOCK_SIZE)
+			{
+				pos = 0;
+				block_write(block, buffer);
+				block++;
+				block_read(block, buffer);
+			}
+			memcpy(buffer + pos, buf + num_written, 1);
+			num_written++;
+		}
+		filedes.offset += num_written;
+		free(buffer);
+		buffer = NULL;
+		return num_written;
+
+	}
+
 	return -1;
 }
 
 /* returns the current size of a given file */
 int fs_get_filesize(int fildes)
 {
-	//TODO: returns file size on success, -1 on failure
 	if (open_files[fildes].file_num == -1)
 	{
 		printf("Cannot get file size! It hasn't been open.\n");
@@ -336,26 +378,25 @@ int fs_truncate(int fildes, off_t length)
 		}
 		fs_meta file = files[open_files[fildes].file_num];
 
-
 		int i = open_files[fildes].file_num + 1;
 
 		// Move the actual data
 		int num_move = file.size - length;
-		block_read(file.block,block1);
-		memcpy(block1 + file.offset + length, block1 + file.offset + file.size,BLOCK_SIZE - (file.offset+file.size));
-		memcpy(block1 + (BLOCK_SIZE-num_move), block2,num_move);
-		block_write(file.block,block1);
+		block_read(file.block, block1);
+		memcpy(block1 + file.offset + length, block1 + file.offset + file.size, BLOCK_SIZE - (file.offset + file.size));
+		memcpy(block1 + (BLOCK_SIZE - num_move), block2, num_move);
+		block_write(file.block, block1);
 		while (i < DISK_BLOCKS - 1)
 		{
 			block_read(i, block1);
 			block_read(i + 1, block2);
-			memcpy(block1,block1+num_move,BLOCK_SIZE-num_move);
-			memcpy(block1+num_move,block2,num_move);
-			block_write(i,block1);
+			memcpy(block1, block1 + num_move, BLOCK_SIZE - num_move);
+			memcpy(block1 + num_move, block2, num_move);
+			block_write(i, block1);
 		}
-		block_read(i,block1);
-		memcpy(block1,block1+num_move,BLOCK_SIZE-num_move);
-		block_write(i,block1);
+		block_read(i, block1);
+		memcpy(block1, block1 + num_move, BLOCK_SIZE - num_move);
+		block_write(i, block1);
 
 		file.size = length;
 		while (i < 64)
