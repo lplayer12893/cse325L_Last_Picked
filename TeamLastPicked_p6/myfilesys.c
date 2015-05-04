@@ -4,7 +4,7 @@
 open_file open_files[32];
 fs_meta files[64];
 
-void fillBlockAndInt(int i);
+void fillBlockAndOffset(int i);
 
 /* create an empty file system on the virtual disk with name disk_name */
 int make_fs(char *disk_name)
@@ -171,7 +171,7 @@ int fs_create(char *name)
 	}
 	// This is a workable file.
 	int block, offset;
-	fillBlockAndInt(i);
+	fillBlockAndOffset(i);
 
 	files[i]->size = 0;
 	return 0;
@@ -265,16 +265,33 @@ int fs_lseek(int fildes, off_t offset)
 /* truncates a given file to length bytes in size */
 int fs_truncate(int fildes, off_t length)
 {
-	//TODO: truncate file fildes to length bytes
-	//TODO: free truncated blocks
-	//TODO: constraint - truncate cannot extend a file
+	if (open_files[fildes] == NULL)
+	{
+		printf("Cannot truncate a file that isn't open.\n");
+		return -1;
+	}
+	if (files[open_files[fildes]->file_num]->size < length)
+	{
+		printf("Cannot truncate a file to make it bigger! Old size: %d, requested size: %d\n",files[open_files[fildes]->file_num]->size,length);
+		return -1;
+	}
+	else
+	{
+		files[open_files[fildes]->file_num]->size = length;
+		int i = open_files[fildes]->file_num + 1;
+		while (i < 64)
+		{
+			// Reset the block sizes
+			fillBlockAndOffset(i);
+		}
+	}
 	//TODO: Returns 0 on success and -1 on failure
 }
 
 /**
  * Sets the block size and offset for a new file, given the last file.
  */
-void fillBlockAndInt(int i)
+void fillBlockAndOffset(int i)
 {
 	if (i == 0)
 	{
