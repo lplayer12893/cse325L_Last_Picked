@@ -231,6 +231,7 @@ int fs_read(int fildes, void *buf, size_t nbyte)
 	//TODO: stop reading at eof
 	//TODO: implicitly increment the file pointer by bytes read
 	//TODO: Returns number of bytes read on success and -1 on failure
+	return -1;
 }
 
 /* Attempts to write nbyte bytes from a given file */
@@ -241,6 +242,7 @@ int fs_write(int fildes, void *buf, size_t nbyte)
 	//TODO: if not enough disk space, write as much as possible
 	//TODO: implicitly increment the file pointer by bytes written
 	//TODO: Returns number of bytes written on success, -1 on failure. 0 on full disk
+	return -1;
 }
 
 /* returns the current size of a given file */
