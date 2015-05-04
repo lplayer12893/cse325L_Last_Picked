@@ -17,7 +17,7 @@ int fs_lseek(int fildes, off_t offset); /* sets the file pointer to the argument
 int fs_truncate(int fildes, off_t length); /* truncates a given file to length bytes in size           */
 /********************************************************************************************************/
 
-struct fs_meta
+typedef struct
 {
 	struct fs_meta *next; // Pointer to the next metadata
 	struct fs_meta *prev; // Pointer to the previous metadata
@@ -26,6 +26,11 @@ struct fs_meta
 	void * data; // Pointer to the actual data, the bucket
 	int bytes_here; // Number of bytes in this bucket
 	struct fs_meta * frag_next; // Pointer to the next metadata if fragmented, NULL if not fragmented.
-};
+} fs_meta;
 
+typedef struct
+{
+		fs_meta file; // The file that is open
+		int offset; // The current offset.
+} open_file;
 #endif

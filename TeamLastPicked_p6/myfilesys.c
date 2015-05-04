@@ -1,6 +1,9 @@
 #include "myfilesys.h"
 #include "disk.c"
 
+open_file open_files[64];
+fs_meta * first;
+
 /* create an empty file system on the virtual disk with name disk_name */
 int make_fs(char *disk_name){
     if(make_disk(disk_name) != 0)
@@ -39,11 +42,45 @@ int unmount_fs(char *disk_name){
 
 /* the file specified by name is opened for reading and writing, and the file descriptor is returned */
 int fs_open(char *name){
-	//TODO: open file for r/w
-	//TODO: get file descriptor
-	//TODO: set file offset/seek pointer to start of file
-	//TODO: implement storage for up to 32 file descriptors
-	//TODO: Returns non-negative fildes on success and -1 on failure
+	// First, find a file descriptor to use.
+	int filedesc=0;
+	while(filedesc != 64)
+	{
+		if (open_files[filedesc] == NULL)
+			break;
+		else
+			filedesc++;
+	}
+	fs_meta * file = first;
+	while(1)
+	{
+		if (strcmp(file->file_name,name) == 0)
+		{
+			// Found the file
+			break;
+		}
+		else
+		{
+			if (file->next == NULL)
+				break;
+		}
+	}
+	if (file == NULL)
+	{
+		// Didn't find the file
+		printf("Can't find file %s!\n",name);
+		return -1;
+	}
+	open_files[filedesc] = malloc(sizeof(open_file));
+	if (open_files[filedesc] == NULL)
+	{
+		perror("Can't open file (malloc step)");
+		return -1;
+	}
+	open_files[filedesc]->file = file;
+	open_files[filedesc]->offset = 0;
+
+	return filedesc;
 }
 
 /* closes the file with the corresponding file descriptor fildes */
