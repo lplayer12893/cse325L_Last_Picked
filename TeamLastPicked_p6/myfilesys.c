@@ -84,9 +84,19 @@ int fs_open(char *name){
 }
 
 /* closes the file with the corresponding file descriptor fildes */
-int fs_close(int fildes){
-	//TODO: close file filedes
-    //TODO: Returns 0 on success and -1 on failure
+int fs_close(int fildes)
+{
+	if (open_files[fildes] == NULL)
+	{
+		printf("Can't close file %d because it isn't open!\n",fildes);
+		return -1;
+	}
+	else
+	{
+		free(open_files[fildes]);
+		open_files[fildes] = NULL;
+		return 0;
+	}
 }
 
 /* creates a new file with name name */
