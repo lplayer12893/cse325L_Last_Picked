@@ -89,7 +89,7 @@ int main(int argc, char ** argv)
 		if (files[i] == -1)
 		{
 			if (i < 32)
-				error("Couldn't open file descriptor #%d.",i);
+				error("Couldn't open file descriptor #%d.", i);
 		}
 		else
 		{
@@ -99,22 +99,22 @@ int main(int argc, char ** argv)
 	}
 	success("fs_open, too many files");
 
-	for (i=0;i<40;i++)
+	for (i = 0; i < 40; i++)
 	{
 		files[i] = fs_close(files[i]);
 		if (files[i] != 0)
 		{
 			if (i <= 32)
-				error("Couldn't close file descriptor #%d.",i);
+				error("Couldn't close file descriptor #%d.", i);
 
 		}
 	}
-	success("fs_close, %d files.",i);
+	success("fs_close, %d files.", i);
 
 	// Try to find a file that doesn't exist.
 	files[0] = fs_open("asdf");
 	if (files[0] != -1)
-		error("fs_open found a file that didn't exist (number %d)",files[0]);
+		error("fs_open found a file that didn't exist (number %d)", files[0]);
 	success("fs_open file not found");
 
 	// Try to find a file that is named too long
