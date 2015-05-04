@@ -8,16 +8,16 @@
 
 typedef struct
 {
-	char file_name[16]; // String of file name, first character is 0x0 if not in use
-	int block; // which block we need
-	int offset; // the offset of the start of the file inside the block
-	int size; // Size of this file, in bytes. Will always be contiguous
+		char file_name[16]; // String of file name, first character is 0x0 if not in use
+		int block; // which block we need
+		int offset; // the offset of the start of the file inside the block
+		int size; // Size of this file, in bytes. Will always be contiguous
 } fs_meta;
 
 typedef struct
 {
-	int file_num; // The file that is open, array offset
-	int offset; // The current offset.
+		int file_num; // The file that is open, array offset
+		int offset; // The current offset.
 } open_file;
 
 #define DATA_START (DISK_BLOCKS / 2)

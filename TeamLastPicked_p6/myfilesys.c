@@ -472,7 +472,7 @@ int fs_truncate(int fildes, off_t length)
 			startOffset -= BLOCK_SIZE;
 		}
 
-		shiftBlocks(startBlock, startOffset, length-1);
+		shiftBlocks(startBlock, startOffset, length - 1);
 		files[open_files[fildes].file_num].size = length;
 		int i = fildes;
 		for (i = fildes; i < 63; i++)
