@@ -4,7 +4,7 @@ CFLAGS=-Wall -Werror -g
 %.o: %.c %.h
 	${CC} ${CFLAGS} -c $<
 
-all: rbtree.o disk.o test 
+all: rbtree.o disk.o myfilesys.o test 
 	@echo Build successful.
 
 test: testDisk.c disk.o rbtree.o
