@@ -3,24 +3,38 @@
 
 /* create an empty file system on the virtual disk with name disk_name */
 int make_fs(char *disk_name){
-	//TODO: invoke make_disk(disk_name)
-	//TODO: open this disk
+    if(make_disk(disk_name) != 0)
+        return -1;
+
+    if(open_disk(disk_name) != 0)
+        return -1;
+
+    
+	
 	//TODO: initialize/write necessary meta-information for mounting
+    return 0;
 	//TODO: Returns 0 on success and -1 on failure
 }
 
 /* mounts a file system stored on a virtual disk with name disk_name */
 int mount_fs(char *disk_name){
-	//TODO: open the disk
+    if(open_disk(disk_name) != 0)
+        return -1;
+
 	//TODO: load the meta-info for file system operations below
-	//TODO: Returns 0 on success and -1 on failure
+	return 0;
+    //TODO: Returns 0 on success and -1 on failure
 }
 
 /* unmounts the file system from a virtual disk with name disk_name */
 int unmount_fs(char *disk_name){
 	//TODO: write back all meta-info with changes
-	//TODO: close disk
+
+    if(close_disk(disk_name) != 0)
+        return -1;
+
 	//TODO: Returns 0 on success and -1 on failure
+    return 0;
 }
 
 /* the file specified by name is opened for reading and writing, and the file descriptor is returned */
