@@ -1,4 +1,4 @@
-#include "disk.h"
+#include "myfilesys.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -8,8 +8,11 @@ int main(int argc, char ** argv)
 {
 	// This is where we add our own tests. Make will automatically run these. 
 	// To error out, just return any non-zero integer.
+	if (make_fs("test.fs") == -1)
+	{
+		error("Cannot make file system!");
+	}
 
-	// First, let's test our red black tree
 	
 	return 0;
 }

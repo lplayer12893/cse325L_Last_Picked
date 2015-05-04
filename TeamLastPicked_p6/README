@@ -5,3 +5,24 @@ Team Last Picked
 
 Lab Project 6: File Systems
 
+DESCRIPTION:
+
+This is the implementation "my file system" utilizing a virtual disk on top of the Linux file system.
+
+FILE LIST:
+
+myfilesys.c: includes the implementation of the file system utility functions
+myfilesys.h: header file for myfilesys.c above
+disk.c: contains methods for interacting with the virtual disk
+disk.h: header file for disk.c above
+makefile: compiles and invokes the program execution
+README: this file
+
+COMPILATION:
+    run make to compile via makefile
+
+INVOCATION:
+    running make for compilation invokes the program execution
+
+KNOWN BUGS:
+    No known bugs.

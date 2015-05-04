@@ -4,12 +4,12 @@ CFLAGS=-Wall -Werror -g
 %.o: %.c %.h
 	${CC} ${CFLAGS} -c $<
 
-all: rbtree.o disk.o myfilesys.o test 
+all: disk.o myfilesys.o test 
 	@echo Build successful.
 
-test: testDisk.c disk.o rbtree.o
+test: testDisk.c disk.o myfilesys.o
 	@echo Compiling Tests...
-	${CC} ${CFLAGS} -o testDisk testDisk.c disk.o
+	${CC} ${CFLAGS} -o testDisk testDisk.c disk.o myfilesys.o
 	@echo Running Tests...
 	@./testDisk
 	@echo -e "\033[0;32m/=====================================\ \033[0m"

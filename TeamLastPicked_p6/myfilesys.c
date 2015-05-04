@@ -13,8 +13,8 @@ int make_fs(char *disk_name)
 	if (make_disk(disk_name) != 0)
 		return -1;
 
-	if (open_disk(disk_name) != 0)
-		return -1;
+//	if (open_disk(disk_name) != 0)
+//		return -1;
 
 	// Mount it so we can write the metadata
 	mount_fs(disk_name);
@@ -55,7 +55,7 @@ int mount_fs(char *disk_name)
 		memcpy(files + i, buffer, BLOCK_SIZE);
 		i += BLOCK_SIZE;
 	}
-	free(buffer);
+	// free(buffer);
 
 	for (i = 0; i < 32; i++)
 	{
