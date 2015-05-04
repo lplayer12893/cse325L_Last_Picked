@@ -227,11 +227,42 @@ int fs_delete(char *name)
 /* Attempts to read nbyte bytes from a given file */
 int fs_read(int fildes, void *buf, size_t nbyte)
 {
-	//TODO: read nbyte bytes from file into buf. Function assumes *buf is big enough
-	//TODO: stop reading at eof
-	//TODO: implicitly increment the file pointer by bytes read
-	//TODO: Returns number of bytes read on success and -1 on failure
-	return -1;
+	int num_read = 0;
+	open_file filedes = open_files[fildes];
+	fs_meta actual_file = files[filedes.file_num];
+
+	if (nbyte > actual_file.size + filedes.offset)
+	{
+		nbyte = actual_file.size - filedes.offset;
+	}
+	int block = actual_file.block;
+	int pos = actual_file.offset + filedes.offset;
+
+	while (pos > BLOCK_SIZE)
+	{
+		block++;
+		pos -= BLOCK_SIZE;
+	}
+	char * buffer = malloc(BLOCK_SIZE);
+	if (buffer == NULL)
+	{
+		perror("Cannot read (malloc step)");
+		return -1;
+	}
+	block_read(block,buffer);
+
+	while (num_read < nbyte)
+	{
+		if (pos == BLOCK_SIZE)
+		{
+			pos = 0;
+			block++;
+			block_read(block,buffer);
+		}
+		memcpy(buf + num_read,buffer+pos,1);
+	}
+	filedes.offset += num_read;
+	return num_read;
 }
 
 /* Attempts to write nbyte bytes from a given file */
@@ -305,7 +336,7 @@ int fs_truncate(int fildes, off_t length)
 		}
 		fs_meta file = files[open_files[fildes].file_num];
 
-		files[open_files[fildes].file_num].size = length;
+
 		int i = open_files[fildes].file_num + 1;
 
 		// Move the actual data
@@ -326,6 +357,7 @@ int fs_truncate(int fildes, off_t length)
 		memcpy(block1,block1+num_move,BLOCK_SIZE-num_move);
 		block_write(i,block1);
 
+		file.size = length;
 		while (i < 64)
 		{
 			// Reset the block sizes
@@ -363,3 +395,4 @@ void fillBlockAndOffset(int i)
 	}
 
 }
+
