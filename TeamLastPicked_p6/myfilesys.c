@@ -9,12 +9,14 @@ void fillBlockAndOffset(int i);
 /* create an empty file system on the virtual disk with name disk_name */
 int make_fs(char *disk_name)
 {
+	// First, call make disk.
 	if (make_disk(disk_name) != 0)
 		return -1;
 
 	if (open_disk(disk_name) != 0)
 		return -1;
 
+	// Mount it so we can write the metadata
 	mount_fs(disk_name);
 
 	int i = 0;
@@ -26,6 +28,7 @@ int make_fs(char *disk_name)
 		files[i].size = -1;
 	}
 
+	// Unmount it so it saves.
 	unmount_fs(disk_name);
 
 	return 0;
@@ -34,6 +37,7 @@ int make_fs(char *disk_name)
 /* mounts a file system stored on a virtual disk with name disk_name */
 int mount_fs(char *disk_name)
 {
+	// Open the disk
 	if (open_disk(disk_name) != 0)
 		return -1;
 	char * buffer = malloc(BLOCK_SIZE);
@@ -43,6 +47,7 @@ int mount_fs(char *disk_name)
 		return -1;
 	}
 
+	// Copy our structure from disk into memory
 	int i = 0;
 	while (i < (sizeof(fs_meta) * 64))
 	{
@@ -71,19 +76,24 @@ int unmount_fs(char *disk_name)
 		return -1;
 	}
 
+
 	while (i < (sizeof(fs_meta) * 64))
 	{
+		// Copy our structure into the buffer
 		memcpy(files + i, buffer, BLOCK_SIZE);
+		// Write it to disk
 		block_write((i % BLOCK_SIZE), buffer);
 		i += BLOCK_SIZE;
 	}
 	free(buffer);
 
+	// Close all open files.
 	for (i = 0; i < 32; i++)
 	{
 		open_files[i].file_num = -1;
 	}
 
+	// Close disk
 	if (close_disk(disk_name) != 0)
 		return -1;
 
@@ -128,6 +138,7 @@ int fs_open(char *name)
 		return -1;
 	}
 
+	// Open the file, and set the offset to 0.
 	open_files[filedesc].file_num = filenum;
 	open_files[filedesc].offset = 0;
 
@@ -137,6 +148,7 @@ int fs_open(char *name)
 /* closes the file with the corresponding file descriptor fildes */
 int fs_close(int fildes)
 {
+	// Check to make sure it's open
 	if (open_files[fildes].file_num == -1)
 	{
 		printf("Can't close file %d because it isn't open!\n", fildes);
@@ -144,6 +156,7 @@ int fs_close(int fildes)
 	}
 	else
 	{
+		// Close it
 		open_files[fildes].file_num = -1;
 		return 0;
 	}
@@ -152,6 +165,7 @@ int fs_close(int fildes)
 /* creates a new file with name name */
 int fs_create(char *name)
 {
+	// Check file name
 	if (strlen(name) > 15)
 	{
 		printf("Tried to create filename %s but it's too long! (15 char maximum).\n", name);
@@ -212,6 +226,11 @@ int fs_delete(char *name)
 					return -1;
 				}
 			}
+			// Delete the file
+			// First, open it, truncate, then close.
+			int des = fs_open(name);
+			fs_truncate(des,0);
+			fs_close(des);
 			files[i].file_name[0] = 0x0;
 			return 0;
 		}
