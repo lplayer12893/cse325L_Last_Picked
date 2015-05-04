@@ -15,6 +15,7 @@ int main(int argc, char ** argv)
 	if (unmount_fs("test.fs") == -1)
 		error("Cannot unmount file system!");
 
+
 	return 0;
 }
 
