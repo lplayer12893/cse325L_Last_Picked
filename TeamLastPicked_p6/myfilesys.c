@@ -363,7 +363,7 @@ int fs_lseek(int fildes, off_t offset)
 	{
 		if (offset > files[open_files[fildes].file_num].size)
 		{
-			printf("Tried to seek past end of file!");
+			// printf("Tried to seek past end of file!");
 			return -1;
 		}
 		else
