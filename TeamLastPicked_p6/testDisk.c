@@ -82,6 +82,45 @@ int main(int argc, char ** argv)
 		error("Cannot close file test1");
 	success("fs_close");
 
+	// Try to create a file with name too big
+	if(fs_create("1234567890123456") != -1)
+		error("Cannot create file with 15 character filename");
+	success("Too Long of file name");
+
+	// Try to create duplicate file
+	if (fs_create("test1") != -1)
+		error("fs_create allowed duplicate file names");
+	success("Duplicate files");
+
+	// Try and create too many files
+	char * fname = malloc(7);
+	for (i=0;i<70;i++)
+	{
+
+		sprintf(fname,"file%d",i);
+		if (fs_create(fname) == -1)
+		{
+			if (i < 63)
+				error("fs_create couldn't make file %d",i);
+		}
+		else
+		{
+			if (i >= 63)
+				error("fs_create allowed too many files!");
+		}
+	}
+	success("File count");
+
+	// Delete all the files we made
+	for (i=0;i<63;i++)
+	{
+		sprintf(fname,"file%d",i);
+		if (fs_delete(fname) == -1)
+		{
+			error("fs_delete couldn't delete file %d",i);
+		}
+	}
+	printAllFiles();
 	// Try to open too many files
 	for (i = 0; i < 40; i++)
 	{
@@ -248,8 +287,8 @@ int main(int argc, char ** argv)
 		error("2nd file block is wrong! (%d, should be %d)", getFile(1).block, DATA_START);
 	if (getFile(1).offset != 5)
 		error("2nd file offset is wrong! (%d, should be 5)", getFile(1).offset);
-	if (getFile(1).size != -1)
-		error("2nd file size is wrong! (%d, should be -1)", getFile(1).size);
+	if (getFile(1).size != 0)
+		error("2nd file size is wrong! (%d, should be 0)", getFile(1).size);
 	success("Created 2nd file");
 
 	filedes2 = fs_open("test2");
@@ -296,6 +335,16 @@ int main(int argc, char ** argv)
 	if (strcmp(test2, "ABCDEFG") != 0)
 		error("Read from 2nd file is wrong, >%s< should be >ABCDEFG<", test2);
 	success("write to 1st file in bounds doesn't affect 2nd");
+
+	// Truncate File
+
+	// Delete File
+
+	// One file larger than block bound
+
+	// Make another file
+
+	// Make one file in a block, second file cross block bound
 
 	return 0;
 }

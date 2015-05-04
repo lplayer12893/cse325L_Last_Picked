@@ -4,6 +4,7 @@ open_file open_files[32];
 fs_meta files[64];
 
 void fillBlockAndOffset(int i);
+void shiftBlocks(int startBlock, int startOffset, int numShift);
 
 /**
  * Creates a new filesystem
@@ -149,6 +150,8 @@ int fs_open(char *name)
 	if (filenum == 64)
 	{
 		// Didn't find the file
+		printf("Couldn't find file.\n");
+		printAllFiles();
 		return -1;
 	}
 
@@ -159,7 +162,12 @@ int fs_open(char *name)
 	return filedesc;
 }
 
-/* closes the file with the corresponding file descriptor fildes */
+/**
+ * Closes a file
+ * @tested
+ * @param fildes file descriptor to close
+ * @return 0 on success, -1 on failure
+ */
 int fs_close(int fildes)
 {
 	// Check to make sure it's open
@@ -181,7 +189,6 @@ int fs_create(char *name)
 	// Check file name
 	if (strlen(name) > 15)
 	{
-		printf("Tried to create filename %s but it's too long! (15 char maximum).\n", name);
 		return -1;
 	}
 	// First, make sure this file name doesn't exist.
@@ -190,7 +197,6 @@ int fs_create(char *name)
 	{
 		if (strcmp(files[i].file_name, name) == 0)
 		{
-			printf("File exists.\n");
 			return -1;
 		}
 	}
@@ -210,14 +216,14 @@ int fs_create(char *name)
 	if (i == 64)
 	{
 		// Couldn't find space.
-		printf("Too many files!\n");
 		return -1;
 	}
 	// This is a workable file.
 	fillBlockAndOffset(i);
 
-	files[i].size = -1;
-	memcpy(files[i].file_name, name, strlen(name));
+	files[i].size = 0;
+	files[i + 1].size = -1;
+	memcpy(files[i].file_name, name, strlen(name)+1);
 	return 0;
 }
 
@@ -241,11 +247,33 @@ int fs_delete(char *name)
 				}
 			}
 			// Delete the file
-			// First, open it, truncate, then close.
-			int des = fs_open(name);
-			fs_truncate(des, 0);
-			fs_close(des);
-			files[i].file_name[0] = 0x0;
+			// First, shift the actual data
+			shiftBlocks(files[i].block, files[i].offset, files[i].size);
+			// Next, shift the remaining open file descriptors
+			for (j = 0; j < 32; j++)
+			{
+				if (open_files[j].file_num > i)
+				{
+					open_files[j].file_num--;
+				}
+			}
+			// Finally, shift the remaining fs_metas
+			for (j = i; j < 63; j++)
+			{
+				// printf("Copying entry %d to %d\n", j + 1, j);
+				files[j].block = files[j+1].block;
+				memcpy(files[j].file_name,files[j+1].file_name,16);
+				files[j].offset = files[j+1].offset;
+				files[j].size = files[j+1].size;
+			}
+			files[63].file_name[0] = 0x0;
+			files[63].size = -1;
+
+			// Finally, shift all data blocks to conform to right sizes.
+			for (j = i; j < 64; j++)
+			{
+				fillBlockAndOffset(j);
+			}
 			return 0;
 		}
 		else
@@ -325,8 +353,15 @@ int fs_write(int fildes, void *buf, size_t nbyte)
 		{
 			//TODO: handle dynamically expanding file size
 			// Too much writing, truncate and make new.
-			printf("LOL Dynamically expanding file\n");
-			return -1;
+			if (files[filedes->file_num + 1].size == -1)
+			{
+				// Next block is empty, just expand;
+			}
+			else
+			{
+				printf("LOL Dynamically expanding file. Size of my file is %d, next file is %d\n", actual_file->size, files[filedes->file_num + 1].size);
+				return -1;
+			}
 		}
 	}
 	while (pos >= BLOCK_SIZE)
@@ -402,6 +437,8 @@ int fs_truncate(int fildes, off_t length)
 	}
 	if (files[open_files[fildes].file_num].size < length)
 	{
+		if (files[open_files[fildes].file_num].size == -1)
+			return 0;
 		printf("Cannot truncate a file to make it bigger! Old size: %d, requested size: %d\n", files[open_files[fildes].file_num].size, (int) length);
 		return -1;
 	}
@@ -465,7 +502,10 @@ void fillBlockAndOffset(int i)
 	{
 		files[i].block = files[i - 1].block;
 		files[i].offset = files[i - 1].offset;
-		files[i].offset += files[i - 1].size;
+		if (files[i-1].size == -1)
+			files[i].offset = files[i-1].offset;
+		else
+			files[i].offset += files[i - 1].size;
 		while (files[i].offset > BLOCK_SIZE)
 		{
 			files[i].offset -= BLOCK_SIZE;
@@ -473,6 +513,79 @@ void fillBlockAndOffset(int i)
 		}
 	}
 
+}
+
+void shiftBlocks(int startBlock, int startOffset, int numShift)
+{
+	if (numShift == 0)
+		return;
+	int block1 = startBlock;
+	int offset1 = startOffset;
+	int block2 = startBlock;
+	int offset2 = startOffset + numShift;
+	char *buffer1 = NULL, *buffer2 = NULL;
+
+	buffer1 = malloc(BLOCK_SIZE);
+	buffer2 = malloc(BLOCK_SIZE);
+
+	if ((buffer1 == NULL) || (buffer2 == NULL))
+	{
+		perror("Can't shift blocks");
+		return;
+	}
+
+	while (offset2 >= BLOCK_SIZE)
+	{
+		block2++;
+		offset2 -= BLOCK_SIZE;
+	}
+
+	block_read(block1, buffer1);
+	block_read(block2, buffer2);
+	int num_copy = 0;
+	while (block2 < DISK_BLOCKS)
+	{
+		// Figure out how much we need to copy.
+		if (offset1 > offset2)
+		{
+			num_copy = BLOCK_SIZE - offset1;
+		}
+		else
+		{
+			num_copy = BLOCK_SIZE - offset2;
+		}
+		// Copy the memory
+		memcpy(buffer1 + offset1, buffer2 + offset2, num_copy);
+
+		// Advance the offsets
+		offset1 += num_copy;
+		offset2 += num_copy;
+		// See if we need to advance a block
+		if (offset1 == BLOCK_SIZE)
+		{
+			block_write(block1, buffer1);
+			block1++;
+			offset1 = 0;
+			block_read(block1, buffer1);
+		}
+		if (offset2 == BLOCK_SIZE)
+		{
+			block_write(block2, buffer2);
+			block2++;
+			offset2 = 0;
+			block_read(block2, buffer2);
+		}
+	}
+	// We reached the end, so zero out what's left.
+	memset(buffer1 + offset1, 0x0, BLOCK_SIZE - offset1);
+	block_write(block1, buffer1);
+	block1++;
+	memset(buffer1, 0x0, BLOCK_SIZE);
+	while (block1 < DISK_BLOCKS)
+	{
+		block_write(block1, buffer1);
+		block1++;
+	}
 }
 
 fs_meta getFile(int i)
@@ -483,4 +596,15 @@ fs_meta getFile(int i)
 open_file getFileDesc(int i)
 {
 	return open_files[i];
+}
+
+void printAllFiles()
+{
+	int i = 0;
+	for (i = 0; i < 64; i++)
+	{
+		printf("File %d: %s\n", i, files[i].file_name);
+		printf("\tBlock %d, Offset %d\n", files[i].block, files[i].offset);
+		printf("\tSize: %d\n", files[i].size);
+	}
 }

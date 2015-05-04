@@ -41,5 +41,5 @@ int fs_truncate(int fildes, off_t length); /* truncates a given file to length b
 
 fs_meta getFile(int i);
 open_file getFileDesc(int i);
-
+void printAllFiles();
 #endif
