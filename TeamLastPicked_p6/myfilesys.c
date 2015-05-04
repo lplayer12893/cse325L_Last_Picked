@@ -4,6 +4,14 @@
 open_file open_files[64];
 fs_meta * first;
 
+char * toString(fs_meta *){
+    if(fs_meta == NULL)
+        return NULL;
+    
+    if(fs_next
+
+}
+
 /* create an empty file system on the virtual disk with name disk_name */
 int make_fs(char *disk_name){
     if(make_disk(disk_name) != 0)
@@ -12,6 +20,14 @@ int make_fs(char *disk_name){
     if(open_disk(disk_name) != 0)
         return -1;
 
+    first = malloc(sizeof(fs_meta));
+    first->next = NULL;
+    first->prev = NULL;
+    first->file_name = NULL;
+    first->total_bytes = 0;
+    first->data = NULL;
+    first->bytes_here = 0;
+    first->frag_next = NULL;
     
 	
 	//TODO: initialize/write necessary meta-information for mounting
