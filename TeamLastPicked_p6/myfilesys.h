@@ -6,16 +6,16 @@ typedef struct
 	struct fs_meta *next; // Pointer to the next metadata
 	struct fs_meta *prev; // Pointer to the previous metadata
 	char *file_name; // String of file name, NULL if not in use
-	int total_bytes; // Number of bytes used
-	void * data; // Pointer to the actual data, the bucket
-	int bytes_here; // Number of bytes in this bucket
+	int block; // which block we need
+	int offset; // the offset of the start of the file inside the block
+	int bytes_here; // Number of bytes in this bucket, never to exceed the block boundary
 	struct fs_meta * frag_next; // Pointer to the next metadata if fragmented, NULL if not fragmented.
 } fs_meta;
 
 typedef struct
 {
-		fs_meta file; // The file that is open
-		int offset; // The current offset.
+	fs_meta file; // The file that is open
+	int offset; // The current offset.
 } open_file;
 
 /********************************************************************************************************/

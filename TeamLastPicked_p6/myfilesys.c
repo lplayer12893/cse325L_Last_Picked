@@ -41,7 +41,8 @@ int unmount_fs(char *disk_name){
 }
 
 /* the file specified by name is opened for reading and writing, and the file descriptor is returned */
-int fs_open(char *name){
+int fs_open(char *name)
+{
 	// First, find a file descriptor to use.
 	int filedesc=0;
 	while(filedesc != 64)
@@ -100,16 +101,59 @@ int fs_close(int fildes)
 }
 
 /* creates a new file with name name */
-int fs_create(char *name){
-    //TODO: create file in fs
-    //TODO: constrain file name to 15 characters
-    //TODO: constrain file limit to 64 files
-    //TODO: Returns 0 on success and -1 on failure
+int fs_create(char *name)
+{
+	if (strlen(name) > 15)
+	{
+		printf("Tried to create filename %s but it's too long! (15 char maximum).\n",name);
+		return -1;
+	}
+	fs_meta * file = first;
+	while(file != NULL)
+	{
+		if (file->file_name == NULL)
+		{
+			break;
+		}
+		else
+		{
+			file = file->next;
+		}
+	}
+	if (file == NULL)
+	{
+		// Couldn't find space.
+		printf("Can't find space!\n");
+		return -1;
+	}
+	// This is a workable file.
+	file->bytes_here = 0;
+	// this one doesn't change
+	//file->data = name;
+	file->file_name = name;
+	file->frag_next = NULL;
+	file->total_bytes = 0;
+
+	return 0;
 }
 
 /* deletes the file with name name */
-int fs_delete(char *name){
-    //TODO: delete file in fs
+int fs_delete(char *name)
+{
+	fs_meta * file = first;
+	while(file != NULL)
+	{
+		if (strcmp(file->file_name,name) == 0)
+		{
+			// Found the file
+			break;
+		}
+		else
+		{
+			file = file->next;
+		}
+	}
+
     //TODO: remove file's meta-info
     //TODO: constraint - file must be closed to be deleted (no fildes to file exists)
     //TODO: Returns 0 on success and -1 on failure
