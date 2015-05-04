@@ -358,11 +358,21 @@ int main(int argc, char ** argv)
 	numread = fs_read(filedes2, test2, 10);
 	if (numread != 8)
 		error("after truncate, 2nd file length is wrong. %d, should be 8", numread);
-	printf("test2: >%s<\n",test2);
 	if (strcmp(test2, "ABCDEFG") != 0)
 		error("after truncate, 2nd file contents are wrong. >%s<, should be >ABCDEFG<", test2);
 	success("fs_truncate");
 	// Delete File
+
+	if (fs_delete("blah") == 0)
+		error("fs_delete deleted a file that didn't exist!");
+	if (fs_delete("test1") == 0)
+		error("fs_delete deleted test1 even though it was open!");
+	fs_close(filedes);
+	filedes = -1;
+	if (fs_delete("test1") != 0)
+		error("fs_delete won't delete test1");
+
+	success("fs_delete");
 
 	// One file larger than block bound
 

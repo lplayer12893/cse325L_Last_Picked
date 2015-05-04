@@ -150,8 +150,8 @@ int fs_open(char *name)
 	if (filenum == 64)
 	{
 		// Didn't find the file
-		printf("Couldn't find file.\n");
-		printAllFiles();
+		// printf("Couldn't find file.\n");
+		// printAllFiles();
 		return -1;
 	}
 
@@ -242,7 +242,7 @@ int fs_delete(char *name)
 			{
 				if (open_files[j].file_num == i)
 				{
-					printf("Cannot delete file: it is open in file descriptor %d!\n", j);
+					// printf("Cannot delete file: it is open in file descriptor %d!\n", j);
 					return -1;
 				}
 			}
@@ -281,7 +281,7 @@ int fs_delete(char *name)
 			i++;
 		}
 	}
-	printf("Cannot delete file: cannot find it!\n");
+	// printf("Cannot delete file: cannot find it!\n");
 	return -1;
 }
 
@@ -295,7 +295,7 @@ int fs_read(int fildes, void *buf, size_t nbyte)
 	if (nbyte > actual_file.size - filedes->offset)
 	{
 		nbyte = actual_file.size - filedes->offset;
-		printf("nbyte read is bigger than file. setting to %d\n", nbyte);
+		// printf("nbyte read is bigger than file. setting to %d\n", nbyte);
 	}
 	int block = actual_file.block;
 	int pos = actual_file.offset + filedes->offset;
@@ -323,7 +323,7 @@ int fs_read(int fildes, void *buf, size_t nbyte)
 			block_read(block, buffer);
 		}
 		memcpy(buf + num_read, buffer + pos, 1);
-		printf("Copying into buf[%d] from block %d position %d (byte copied is 0x%02x, '%c')\n", num_read, block, pos,*((char *)(buf+num_read)),((char*)(buf+num_read))[0]);
+		// printf("Copying into buf[%d] from block %d position %d (byte copied is 0x%02x, '%c')\n", num_read, block, pos,*((char *)(buf+num_read)),((char*)(buf+num_read))[0]);
 		num_read++;
 		pos++;
 	}
@@ -378,7 +378,7 @@ int fs_write(int fildes, void *buf, size_t nbyte)
 			block++;
 			block_read(block, buffer);
 		}
-		printf("Writing byte %d to block %d position %d (%02x)\n", num_written, block, pos,*(char*)(buf+num_written));
+		// printf("Writing byte %d to block %d position %d (%02x)\n", num_written, block, pos,*(char*)(buf+num_written));
 		memcpy(buffer + pos, buf + num_written, 1);
 		num_written++;
 		pos++;
@@ -394,7 +394,12 @@ int fs_write(int fildes, void *buf, size_t nbyte)
 	return -1;
 }
 
-/* returns the current size of a given file */
+/**
+ * returns the current size of a given file
+ * @tested
+ * @param fildes descriptor to use
+ * @return -1 on fail, file size otherwise
+ */
 int fs_get_filesize(int fildes)
 {
 	if (open_files[fildes].file_num == -1)
@@ -405,7 +410,12 @@ int fs_get_filesize(int fildes)
 		return files[open_files[fildes].file_num].size;
 }
 
-/* sets the file pointer to the argument offset */
+/**
+ * sets the file pointer to the argument offset
+ * @tested
+ * @param fildes descriptor
+ * @param offset absolute offset to seek to
+ */
 int fs_lseek(int fildes, off_t offset)
 {
 	if (open_files[fildes].file_num == -1)
@@ -427,23 +437,34 @@ int fs_lseek(int fildes, off_t offset)
 	}
 }
 
-/* truncates a given file to length bytes in size */
+/**
+ * truncates a given file to length bytes in size
+ * @tested
+ * @param fildes fildes to truncate
+ * @param length new length
+ * @return 0 if successful, -1 if not.
+ */
 int fs_truncate(int fildes, off_t length)
 {
 	if (open_files[fildes].file_num == -1)
 	{
-		printf("Cannot truncate a file that isn't open.\n");
+		// printf("Cannot truncate a file that isn't open.\n");
 		return -1;
 	}
 	if (files[open_files[fildes].file_num].size < length)
 	{
-		printf("Cannot truncate a file to make it bigger! Old size: %d, requested size: %d\n", files[open_files[fildes].file_num].size, (int) length);
+		// printf("Cannot truncate a file to make it bigger! Old size: %d, requested size: %d\n", files[open_files[fildes].file_num].size, (int) length);
+		return -1;
+	}
+	if (length < 0)
+	{
+		// printf("Cannot truncate a file to negative size!");
 		return -1;
 	}
 	else
 	{
 		int startBlock = files[open_files[fildes].file_num].block;
-		int startOffset = files[open_files[fildes].file_num].offset+length;
+		int startOffset = files[open_files[fildes].file_num].offset + length;
 		while (startOffset > BLOCK_SIZE)
 		{
 			startBlock++;
@@ -452,8 +473,8 @@ int fs_truncate(int fildes, off_t length)
 
 		shiftBlocks(startBlock, startOffset, length);
 		files[open_files[fildes].file_num].size = length;
-		int i=fildes;
-		for (i=fildes;i<63;i++)
+		int i = fildes;
+		for (i = fildes; i < 63; i++)
 			fillBlockAndOffset(i);
 		if (open_files[fildes].offset > length)
 			open_files[fildes].offset = length;
@@ -496,7 +517,7 @@ void shiftBlocks(int startBlock, int startOffset, int numShift)
 	int block1 = startBlock;
 	int offset1 = startOffset;
 	int block2 = startBlock;
-	int offset2 = startOffset + numShift-1;
+	int offset2 = startOffset + numShift - 1;
 	char *buffer1 = NULL, *buffer2 = NULL;
 
 	buffer1 = malloc(BLOCK_SIZE);
