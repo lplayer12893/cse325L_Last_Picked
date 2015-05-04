@@ -25,4 +25,4 @@ INVOCATION:
     running make for compilation invokes the program execution
 
 KNOWN BUGS:
-    No known bugs.
+    Sometimes will segfault, but it never seems to in GDB.
