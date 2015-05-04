@@ -11,9 +11,13 @@ int main(int argc, char ** argv)
 	// This is where we add our own tests. Make will automatically run these. 
 	// To error out, just call the error function.
 
-	// Check our test file system.
+	int i = 0;
+	fs_meta file;
+	// First, check to see if it exists already, so we don't burn a hard drive out.
+
 	if (make_fs("test.fs") == -1)
 		error("Cannot make file system!");
+
 	success("make_fs");
 	if (mount_fs("test.fs") == -1)
 		error("Cannot mount file system!");
@@ -23,7 +27,7 @@ int main(int argc, char ** argv)
 	success("unmount_fs");
 
 	// Next, make sure all files are empty.
-	int i = 0;
+
 	for (i = 0; i < 64; i++)
 	{
 		fs_meta file = getFile(i);
@@ -41,7 +45,7 @@ int main(int argc, char ** argv)
 	// Next, make a file.
 	mount_fs("test.fs");
 	// Next, make sure all files are empty.
-	fs_meta file = getFile(0);
+	file = getFile(0);
 	i = 0;
 	for (i = 0; i < 64; i++)
 	{
@@ -119,13 +123,13 @@ int main(int argc, char ** argv)
 		error("fs_lseek allowed us to go past end of file!");
 	if (getFileDesc(filedes).offset != 5)
 		error("Offset is wrong after improper fs_lseek5 (%d, should be 5)", getFileDesc(filedes).offset);
-	if (fs_lseek(filedes+1,0) != -1)
+	if (fs_lseek(filedes + 1, 0) != -1)
 		error("fs_lseek allowed us to seek a non-open file!");
 	success("fs_lseek");
 
 	// Read from the file, check to make sure it is ok.
 	char * test = malloc(5);
-	fs_lseek(filedes,0);
+	fs_lseek(filedes, 0);
 	if (fs_read(filedes, test, 5) != 5)
 		error("Cannot read 5 bytes from filedes test1");
 	success("read from filedes");
@@ -184,7 +188,41 @@ int main(int argc, char ** argv)
 	if (strcmp(test2, "gh") != 0)
 		error("test2 should be >gh< but it's >%s<", test2);
 	success("2 file descriptor and independence");
+	if (fs_close(filedes2) == -1)
+		error("Couldn't close filedes2");
 
+	// Create a 2nd file
+	if (fs_create("test2") != 0)
+		error("fs_create couldn't create file test2");
+	if (getFile(1).block != DATA_START)
+		error("2nd file block is wrong! (%d, should be %d)", getFile(1).block, DATA_START);
+	if (getFile(1).offset != 5)
+		error("2nd file offset is wrong! (%d, should be 5)", getFile(1).offset);
+	if (getFile(1).size != -1)
+		error("2nd file size is wrong! (%d, should be -1)",getFile(1).size);
+	success("Created 2nd file");
+
+	filedes2 = fs_open("test2");
+	if (filedes2 == -1)
+		error("Couldn't open 2nd file!");
+	if (getFileDesc(filedes2).file_num != 1)
+		error("File descriptor file number is wrong, %d but should be 1", getFileDesc(filedes2).file_num);
+	success("Opened 2nd file");
+
+	// Write to the file
+	num_written = fs_write(filedes2, "ABCDEFG", 8);
+	if (num_written != 8)
+		error("Cannot write 8 bytes to file test2 (wrote %d bytes)", num_written);
+	file = getFile(1);
+	if (file.size != 8)
+		error("Size is wrong, %d but it should be 8", file.size);
+	if (getFileDesc(filedes2).offset != 8)
+		error("Offset is wrong after write (%d, but it should be 8)", getFileDesc(filedes2).offset);
+	success("wrote to 2nd file");
+
+	// Read from 2nd file
+
+	// Write to first file, make sure 2nd file doesn't change
 	return 0;
 }
 

@@ -305,7 +305,7 @@ int fs_write(int fildes, void *buf, size_t nbyte)
 		{
 			//TODO: handle dynamically expanding file size
 			// Too much writing, truncate and make new.
-			printf("LOL Dynamically expanding file");
+			printf("LOL Dynamically expanding file\n");
 			return -1;
 		}
 	}
