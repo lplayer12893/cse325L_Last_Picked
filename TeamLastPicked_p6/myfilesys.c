@@ -5,17 +5,19 @@ fs_meta files[64];
 
 void fillBlockAndOffset(int i);
 
-/* create an empty file system on the virtual disk with name disk_name */
+/**
+ * Creates a new filesystem
+ * @tested
+ * @param disk_name name of the file to write our virtual filesystem on top of
+ * @return -1 on failure, 0 on success.
+ */
 int make_fs(char *disk_name)
 {
 	// First, call make disk.
 	if (make_disk(disk_name) != 0)
 		return -1;
 
-//	if (open_disk(disk_name) != 0)
-//		return -1;
-
-// Mount it so we can write the metadata
+	// Mount it so we can write the metadata
 	mount_fs(disk_name);
 
 	int i = 0;
@@ -33,7 +35,12 @@ int make_fs(char *disk_name)
 	return 0;
 }
 
-/* mounts a file system stored on a virtual disk with name disk_name */
+/**
+ * Mounts a virtual filesystem
+ * @tested
+ * @param disk_name name of file that contains our disk
+ * @return 0 on success, -1 on failure
+ */
 int mount_fs(char *disk_name)
 {
 	// Open the disk
@@ -60,7 +67,12 @@ int mount_fs(char *disk_name)
 	return 0;
 }
 
-/* unmounts the file system from a virtual disk with name disk_name */
+/**
+ * Unmounts a filesystem. Writes all metadata
+ * @tested
+ * @param disk_name file name that our virtual disk sits on
+ * @return 0 on success, -1 on failure
+ */
 int unmount_fs(char *disk_name)
 {
 	int i = 0;
@@ -93,12 +105,23 @@ int unmount_fs(char *disk_name)
 	return 0;
 }
 
-/* the file specified by name is opened for reading and writing, and the file descriptor is returned */
+/**
+ * opens a file by name
+ * @tested
+ * @param name name of file to open, must be < 15 characters
+ * @return file descriptor to that file with offset set to 0, -1 on failure
+ */
 int fs_open(char *name)
 {
-	// First, find a file descriptor to use.
+	// First, check to make sure file name isn't too long
+	if (strlen(name) > 15)
+	{
+		return -1;
+	}
+
+	// Next, find a file descriptor to use.
 	int filedesc = 0;
-	while (filedesc <= 32)
+	while (filedesc < 32)
 	{
 		if (open_files[filedesc].file_num == -1)
 			break;
@@ -108,7 +131,6 @@ int fs_open(char *name)
 	if (filedesc == 32)
 	{
 		// Too many open files
-		printf("Too many open files.");
 		return -1;
 	}
 	int filenum = 0;
@@ -127,7 +149,6 @@ int fs_open(char *name)
 	if (filenum == 64)
 	{
 		// Didn't find the file
-		printf("Can't find file %s!\n", name);
 		return -1;
 	}
 
@@ -144,7 +165,6 @@ int fs_close(int fildes)
 	// Check to make sure it's open
 	if (open_files[fildes].file_num == -1)
 	{
-		printf("Can't close file %d because it isn't open!\n", fildes);
 		return -1;
 	}
 	else
@@ -244,10 +264,10 @@ int fs_read(int fildes, void *buf, size_t nbyte)
 	open_file *filedes = &(open_files[fildes]);
 	fs_meta actual_file = files[filedes->file_num];
 
-	if (nbyte > actual_file.size + filedes->offset)
+	if (nbyte > actual_file.size - filedes->offset)
 	{
 		nbyte = actual_file.size - filedes->offset;
-		printf("nbyte read is bigger than file. setting to %d", nbyte);
+		printf("nbyte read is bigger than file. setting to %d\n", nbyte);
 	}
 	int block = actual_file.block;
 	int pos = actual_file.offset + filedes->offset;
@@ -333,7 +353,7 @@ int fs_write(int fildes, void *buf, size_t nbyte)
 	free(buffer);
 	buffer = NULL;
 	actual_file->size = num_written;
-	printf("actual_file: name: %s, size %d\n", actual_file->file_name, actual_file->size);
+	// printf("actual_file: name: %s, size %d\n", actual_file->file_name, actual_file->size);
 	return num_written;
 
 	return -1;
@@ -344,7 +364,6 @@ int fs_get_filesize(int fildes)
 {
 	if (open_files[fildes].file_num == -1)
 	{
-		printf("Cannot get file size! It hasn't been open.\n");
 		return -1;
 	}
 	else
@@ -356,7 +375,6 @@ int fs_lseek(int fildes, off_t offset)
 {
 	if (open_files[fildes].file_num == -1)
 	{
-		printf("Tried to seek on file, but it wasn't open!");
 		return -1;
 	}
 	else

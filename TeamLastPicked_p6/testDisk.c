@@ -12,6 +12,7 @@ int main(int argc, char ** argv)
 	// To error out, just call the error function.
 
 	int i = 0;
+	int files[40];
 	fs_meta file;
 	// First, check to see if it exists already, so we don't burn a hard drive out.
 
@@ -81,6 +82,47 @@ int main(int argc, char ** argv)
 		error("Cannot close file test1");
 	success("fs_close");
 
+	// Try to open too many files
+	for (i = 0; i < 40; i++)
+	{
+		files[i] = fs_open("test1");
+		if (files[i] == -1)
+		{
+			if (i < 32)
+				error("Couldn't open file descriptor #%d.",i);
+		}
+		else
+		{
+			if (i >= 32)
+				error("fs_open allowed too many files to be opened!");
+		}
+	}
+	success("fs_open, too many files");
+
+	for (i=0;i<40;i++)
+	{
+		files[i] = fs_close(files[i]);
+		if (files[i] != 0)
+		{
+			if (i <= 32)
+				error("Couldn't close file descriptor #%d.",i);
+
+		}
+	}
+	success("fs_close, %d files.",i);
+
+	// Try to find a file that doesn't exist.
+	files[0] = fs_open("asdf");
+	if (files[0] != -1)
+		error("fs_open found a file that didn't exist (number %d)",files[0]);
+	success("fs_open file not found");
+
+	// Try to find a file that is named too long
+	files[0] = fs_open("1234567890123456");
+	if (files[0] != -1)
+		error("fs_open tried looking for a file that was too long.");
+	success("fs_open file too long");
+
 	// Check to make sure we can close and open the disk, and the file stuff stays.
 	if (unmount_fs("test.fs") == -1)
 		error("Cannot unmount fs 2nd time");
@@ -97,10 +139,17 @@ int main(int argc, char ** argv)
 		error("Cannot write 4 bytes to file test1 (wrote %d bytes)", num_written);
 	file = getFile(0);
 	if (file.size != 5)
-		error("Size is wrong, %d but it should be 5", file.size);
+		error("Size is wrong in meta info, %d but it should be 5", file.size);
 	if (getFileDesc(filedes).offset != 5)
 		error("Offset is wrong after write (%d, but it should be 5)", getFileDesc(filedes).offset);
 	success("wrote to file");
+
+	// Check filesize
+	if (fs_get_filesize(filedes) != 5)
+		error("Size is wrong in function, %d, should be 5", fs_get_filesize(filedes));
+	if (fs_get_filesize(filedes + 1) != -1)
+		error("Got size of %d from filesize of non-open file (should be -1)", fs_get_filesize(filedes + 1));
+	success("fs_get_filesize");
 
 	// Check lseek
 	if (fs_lseek(filedes, 0) == -1)
@@ -132,10 +181,11 @@ int main(int argc, char ** argv)
 	fs_lseek(filedes, 0);
 	if (fs_read(filedes, test, 5) != 5)
 		error("Cannot read 5 bytes from filedes test1");
-	success("read from filedes");
+	if (fs_read(filedes, test, 5) != 0)
+		error("fs_read let us read past end of file");
 	if (strcmp(test, "abcd") != 0)
 		error("4 bytes from file test 1 are not right!");
-	success("contents correct");
+	success("fs_read");
 
 	// Unmount filesystem, remount, read file.
 	if (unmount_fs("test.fs") == -1)
@@ -199,7 +249,7 @@ int main(int argc, char ** argv)
 	if (getFile(1).offset != 5)
 		error("2nd file offset is wrong! (%d, should be 5)", getFile(1).offset);
 	if (getFile(1).size != -1)
-		error("2nd file size is wrong! (%d, should be -1)",getFile(1).size);
+		error("2nd file size is wrong! (%d, should be -1)", getFile(1).size);
 	success("Created 2nd file");
 
 	filedes2 = fs_open("test2");
@@ -221,8 +271,32 @@ int main(int argc, char ** argv)
 	success("wrote to 2nd file");
 
 	// Read from 2nd file
+	test2 = realloc(test2, 8);
+	fs_lseek(filedes2, 0);
+	numread = fs_read(filedes2, test2, 8);
+	if (numread != 8)
+		error("Couldn't read from 2nd file. read %d bytes, should be 8", numread);
+	if (strcmp(test2, "ABCDEFG") != 0)
+		error("Read from 2nd file is wrong, >%s< should be >ABCDEFG<", test2);
+	// Check first file after write
+	fs_lseek(filedes, 0);
+	if (fs_read(filedes, test, 5) != 5)
+		error("Cannot read file 3rd time");
+	if (strcmp(test, "efgh") != 0)
+		error("File contents don't match after 2nd file written. (>%s<, should be >abcd<)", test);
+	success("wrote to 2nd file");
 
 	// Write to first file, make sure 2nd file doesn't change
+	fs_lseek(filedes, 0);
+	num_written = fs_write(filedes, "1234", 5);
+	fs_lseek(filedes2, 0);
+	numread = fs_read(filedes2, test2, 8);
+	if (numread != 8)
+		error("Couldn't read from 2nd file. read %d bytes, should be 8", numread);
+	if (strcmp(test2, "ABCDEFG") != 0)
+		error("Read from 2nd file is wrong, >%s< should be >ABCDEFG<", test2);
+	success("write to 1st file in bounds doesn't affect 2nd");
+
 	return 0;
 }
 
