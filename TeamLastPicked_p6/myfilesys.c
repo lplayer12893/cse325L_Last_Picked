@@ -1,5 +1,5 @@
 #include "myfilesys.h"
-#include "disk.c"
+#include "disk.h"
 
 open_file open_files[32];
 fs_meta files[64];
@@ -291,17 +291,46 @@ int fs_truncate(int fildes, off_t length)
 	}
 	if (files[open_files[fildes].file_num].size < length)
 	{
-		printf("Cannot truncate a file to make it bigger! Old size: %d, requested size: %d\n", files[open_files[fildes].file_num].size, (int)length);
+		printf("Cannot truncate a file to make it bigger! Old size: %d, requested size: %d\n", files[open_files[fildes].file_num].size, (int) length);
 		return -1;
 	}
 	else
 	{
+		char * block1 = malloc(BLOCK_SIZE);
+		char * block2 = malloc(BLOCK_SIZE);
+		if ((block1 == NULL) || (block2 == NULL))
+		{
+			perror("Cannot truncate on malloc step");
+			return -1;
+		}
+		fs_meta file = files[open_files[fildes].file_num];
+
 		files[open_files[fildes].file_num].size = length;
 		int i = open_files[fildes].file_num + 1;
+
+		// Move the actual data
+		int num_move = file.size - length;
+		block_read(file.block,block1);
+		memcpy(block1 + file.offset + length, block1 + file.offset + file.size,BLOCK_SIZE - (file.offset+file.size));
+		memcpy(block1 + (BLOCK_SIZE-num_move), block2,num_move);
+		block_write(file.block,block1);
+		while (i < DISK_BLOCKS - 1)
+		{
+			block_read(i, block1);
+			block_read(i + 1, block2);
+			memcpy(block1,block1+num_move,BLOCK_SIZE-num_move);
+			memcpy(block1+num_move,block2,num_move);
+		}
+
 		while (i < 64)
 		{
 			// Reset the block sizes
-			fillBlockAndOffset(i);
+			if (files[i].size != -1)
+			{
+				fillBlockAndOffset(i);
+			}
+			else
+				break;
 		}
 		return 0;
 	}

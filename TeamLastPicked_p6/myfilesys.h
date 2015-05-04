@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 typedef struct
 {
@@ -17,6 +18,8 @@ typedef struct
 	int file_num; // The file that is open, array offset
 	int offset; // The current offset.
 } open_file;
+
+#define DATA_START (DISK_BLOCKS / 2)
 
 /********************************************************************************************************/
 char * toString(fs_meta *);
